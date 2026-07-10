@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import DeclarativeBase
 
-from app.config import settings
+from app.core.config import settings
 
 
 class Base(DeclarativeBase):
@@ -61,7 +61,7 @@ async def seed_default_statuses() -> None:
     """Insert the canonical lifecycle statuses on first boot."""
     from sqlalchemy import select
 
-    from app.models import Status
+    from app.models.status import Status
 
     default_statuses = [
         ("Planning / Backlog", 0, "#8b5cf6"),

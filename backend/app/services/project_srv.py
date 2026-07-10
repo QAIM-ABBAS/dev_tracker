@@ -1,20 +1,16 @@
-"""Projects router — CRUD endpoints."""
+"""Project business logic — CRUD operations."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.models import Project, Task
-from app.schemas import ProjectCreate, ProjectOut, ProjectUpdate
-
-router = APIRouter(prefix="/projects", tags=["projects"])
+from app.models.project import Project
+from app.models.task import Task
+from app.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
 
 
-@router.get("", response_model=list[ProjectOut])
-@router.get("/", response_model=list[ProjectOut], include_in_schema=False)
-async def list_projects(db: AsyncSession = Depends(get_db)) -> list[ProjectOut]:
+async def list_projects(db: AsyncSession) -> list[ProjectOut]:
     """Return all projects ordered by creation time, with task counts."""
     stmt = (
         select(
@@ -32,9 +28,7 @@ async def list_projects(db: AsyncSession = Depends(get_db)) -> list[ProjectOut]:
     return out
 
 
-@router.post("", response_model=ProjectOut, status_code=status.HTTP_201_CREATED)
-@router.post("/", response_model=ProjectOut, include_in_schema=False, status_code=status.HTTP_201_CREATED)
-async def create_project(payload: ProjectCreate, db: AsyncSession = Depends(get_db)) -> ProjectOut:
+async def create_project(db: AsyncSession, payload: ProjectCreate) -> ProjectOut:
     project = Project(**payload.model_dump())
     db.add(project)
     await db.flush()
@@ -42,8 +36,7 @@ async def create_project(payload: ProjectCreate, db: AsyncSession = Depends(get_
     return ProjectOut.model_validate(project).model_copy(update={"task_count": 0})
 
 
-@router.get("/{project_id}", response_model=ProjectOut)
-async def get_project(project_id: str, db: AsyncSession = Depends(get_db)) -> ProjectOut:
+async def get_project(db: AsyncSession, project_id: str) -> ProjectOut:
     stmt = (
         select(Project, func.count(Task.id).label("task_count"))
         .outerjoin(Task, Task.project_id == Project.id)
@@ -57,9 +50,8 @@ async def get_project(project_id: str, db: AsyncSession = Depends(get_db)) -> Pr
     return ProjectOut.model_validate(proj).model_copy(update={"task_count": cnt or 0})
 
 
-@router.patch("/{project_id}", response_model=ProjectOut)
 async def update_project(
-    project_id: str, payload: ProjectUpdate, db: AsyncSession = Depends(get_db)
+    db: AsyncSession, project_id: str, payload: ProjectUpdate
 ) -> ProjectOut:
     project = await db.get(Project, project_id)
     if not project:
@@ -71,10 +63,8 @@ async def update_project(
     return ProjectOut.model_validate(project)
 
 
-@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_project(project_id: str, db: AsyncSession = Depends(get_db)) -> Response:
+async def delete_project(db: AsyncSession, project_id: str) -> None:
     project = await db.get(Project, project_id)
     if not project:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Project not found")
     await db.delete(project)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)

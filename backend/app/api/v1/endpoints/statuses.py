@@ -1,13 +1,13 @@
-"""Statuses router — lifecycle stages (Planning, Yet to Start, In Process, Blocked, Finished)."""
+"""Statuses endpoint — lifecycle stages CRUD."""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.models import Status
-from app.schemas import StatusCreate, StatusOut, StatusUpdate
+from app.db.session import get_db
+from app.models.status import Status
+from app.schemas.status import StatusCreate, StatusOut, StatusUpdate
 
 router = APIRouter(prefix="/statuses", tags=["statuses"])
 

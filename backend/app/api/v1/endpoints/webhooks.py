@@ -1,31 +1,20 @@
-"""Webhooks router — Git PR + deployment integrations.
-
-These endpoints let CI/CD pipelines advance task statuses automatically:
-- A merged PR can move listed task_ids to 'In Process' (or 'Finished' if action=='merged').
-- A successful deployment moves listed task_ids to 'Finished'.
-- A failed deployment moves listed task_ids back to 'Blocked'.
-
-Auth: shared-secret header `X-ProjectFlow-Webhook-Secret`.
-"""
+"""Webhooks endpoint — Git PR + deployment integrations."""
 from __future__ import annotations
 
 from typing import List
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
-from app.database import get_db
-from app.models import Status, Task
-from app.schemas import WebhookDeploy, WebhookGitPR, WebhookResult
+from app.core.config import settings
+from app.core.security import verify_webhook_secret
+from app.db.session import get_db
+from app.models.status import Status
+from app.models.task import Task
+from app.schemas.webhook import WebhookDeploy, WebhookGitPR, WebhookResult
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
-
-
-async def _verify_secret(x_projectflow_webhook_secret: str | None = Header(None)) -> None:
-    if x_projectflow_webhook_secret != settings.WEBHOOK_SECRET:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid webhook secret")
 
 
 async def _status_by_name(db: AsyncSession, name_contains: str) -> Status:
@@ -55,7 +44,7 @@ async def _apply_status_to_tasks(
     return updated
 
 
-@router.post("/git", response_model=WebhookResult, dependencies=[Depends(_verify_secret)])
+@router.post("/git", response_model=WebhookResult, dependencies=[Depends(verify_webhook_secret)])
 async def git_webhook(payload: WebhookGitPR, db: AsyncSession = Depends(get_db)) -> WebhookResult:
     """Handle a PR event. `merged` action => 'Finished', others => 'In Process'."""
     if not payload.task_ids:
@@ -77,7 +66,7 @@ async def git_webhook(payload: WebhookGitPR, db: AsyncSession = Depends(get_db))
 @router.post(
     "/deploy",
     response_model=WebhookResult,
-    dependencies=[Depends(_verify_secret)],
+    dependencies=[Depends(verify_webhook_secret)],
 )
 async def deploy_webhook(
     payload: WebhookDeploy, db: AsyncSession = Depends(get_db)

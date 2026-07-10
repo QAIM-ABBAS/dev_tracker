@@ -1,13 +1,13 @@
-"""Notes router — markdown commentary attached to tasks."""
+"""Notes endpoint — markdown commentary on tasks."""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.models import Note, Task
-from app.schemas import NoteCreate, NoteOut, NoteUpdate
+from app.db.session import get_db
+from app.models.note import Note
+from app.schemas.note import NoteCreate, NoteOut, NoteUpdate
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 
@@ -25,8 +25,6 @@ async def list_notes(task_id: str | None = None, db: AsyncSession = Depends(get_
 @router.post("", response_model=NoteOut, status_code=status.HTTP_201_CREATED)
 @router.post("/", response_model=NoteOut, include_in_schema=False, status_code=status.HTTP_201_CREATED)
 async def create_note(payload: NoteCreate, db: AsyncSession = Depends(get_db)) -> NoteOut:
-    # task_id may be provided inside the content's front-matter via the task route,
-    # but here we accept only content; task-attached creation is via /tasks/{id}/notes.
     raise HTTPException(
         status.HTTP_400_BAD_REQUEST,
         "Use POST /api/v1/tasks/{task_id}/notes to attach a note to a task.",
@@ -56,9 +54,6 @@ async def delete_note(note_id: str, db: AsyncSession = Depends(get_db)) -> Respo
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-# --------------------------------------------------------------------------- #
-# Nested under tasks
-# --------------------------------------------------------------------------- #
 @router.get(
     "/by-task/{task_id}",
     response_model=list[NoteOut],

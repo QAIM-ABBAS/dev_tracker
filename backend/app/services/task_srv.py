@@ -1,31 +1,23 @@
-"""Tasks router — full CRUD, drag-and-drop moves, nested notes & micro-todos."""
+"""Task business logic — CRUD, drag-and-drop, nested resources."""
 from __future__ import annotations
 
 import uuid
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.database import get_db
-from app.models import MicroTodo, Note, Status, Tag, Task, task_tag_table
-from app.schemas import (
-    MicroTodoCreate,
-    MicroTodoOut,
-    NoteCreate,
-    NoteOut,
-    TagOut,
-    TaskBulkMove,
-    TaskCard,
-    TaskCreate,
-    TaskMove,
-    TaskOut,
-    TaskUpdate,
-)
-
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+from app.models.microtodo import MicroTodo
+from app.models.note import Note
+from app.models.status import Status
+from app.models.tag import Tag
+from app.models.task import Task
+from app.schemas.microtodo import MicroTodoCreate, MicroTodoOut
+from app.schemas.note import NoteCreate, NoteOut
+from app.schemas.tag import TagOut
+from app.schemas.task import TaskCard, TaskCreate, TaskMove, TaskOut, TaskUpdate
 
 
 # --------------------------------------------------------------------------- #
@@ -97,12 +89,10 @@ def _to_card(task: Task) -> TaskCard:
 # --------------------------------------------------------------------------- #
 # CRUD
 # --------------------------------------------------------------------------- #
-@router.get("", response_model=list[TaskOut])
-@router.get("/", response_model=list[TaskOut], include_in_schema=False)
 async def list_tasks(
-    project_id: str | None = Query(None),
-    status_id: str | None = Query(None),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession,
+    project_id: str | None = None,
+    status_id: str | None = None,
 ) -> list[TaskOut]:
     stmt = (
         select(Task)
@@ -121,10 +111,9 @@ async def list_tasks(
     return [TaskOut.model_validate(t) for t in rows]
 
 
-@router.get("/cards", response_model=list[TaskCard], tags=["tasks"])
 async def list_task_cards(
-    project_id: str | None = Query(None),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession,
+    project_id: str | None = None,
 ) -> list[TaskCard]:
     """Lightweight card view optimized for Kanban rendering."""
     stmt = (
@@ -135,32 +124,10 @@ async def list_task_cards(
     if project_id:
         stmt = stmt.where(Task.project_id == project_id)
     tasks = (await db.execute(stmt)).scalars().unique()
-    out: list[TaskCard] = []
-    for t in tasks:
-        total = len(t.micro_todos)
-        done = sum(1 for m in t.micro_todos if m.completed)
-        out.append(
-            TaskCard(
-                id=t.id,
-                title=t.title,
-                status_id=t.status_id,
-                project_id=t.project_id,
-                position=t.position,
-                priority=t.priority,
-                description=t.description,
-                due_date=t.due_date,
-                tags=[TagOut.model_validate(tag) for tag in t.tags],
-                micro_todo_total=total,
-                micro_todo_done=done,
-            )
-        )
-    return out
+    return [_to_card(t) for t in tasks]
 
 
-@router.post("", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
-@router.post("/", response_model=TaskOut, include_in_schema=False, status_code=status.HTTP_201_CREATED)
-async def create_task(payload: TaskCreate, db: AsyncSession = Depends(get_db)) -> TaskOut:
-    # Resolve status (default to first/lowest position if not provided)
+async def create_task(db: AsyncSession, payload: TaskCreate) -> TaskOut:
     if payload.status_id:
         status_id = payload.status_id
     else:
@@ -188,15 +155,13 @@ async def create_task(payload: TaskCreate, db: AsyncSession = Depends(get_db)) -
     return TaskOut.model_validate(task)
 
 
-@router.get("/{task_id}", response_model=TaskOut)
-async def get_task(task_id: str, db: AsyncSession = Depends(get_db)) -> TaskOut:
+async def get_task(db: AsyncSession, task_id: str) -> TaskOut:
     task = await _load_task_full(db, task_id)
     return TaskOut.model_validate(task)
 
 
-@router.patch("/{task_id}", response_model=TaskOut)
 async def update_task(
-    task_id: str, payload: TaskUpdate, db: AsyncSession = Depends(get_db)
+    db: AsyncSession, task_id: str, payload: TaskUpdate
 ) -> TaskOut:
     task = await _load_task_full(db, task_id)
     data = payload.model_dump(exclude_unset=True)
@@ -205,7 +170,6 @@ async def update_task(
     new_status_id = data.get("status_id")
     new_project_id = data.get("project_id")
 
-    # If status changed and position not explicitly provided, append to the end of new column.
     if new_status_id and new_status_id != task.status_id and "position" not in data:
         project_id = new_project_id or task.project_id
         data["position"] = await _next_position(db, project_id, new_status_id)
@@ -221,21 +185,18 @@ async def update_task(
     return TaskOut.model_validate(task)
 
 
-@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_task(task_id: str, db: AsyncSession = Depends(get_db)) -> Response:
+async def delete_task(db: AsyncSession, task_id: str) -> None:
     task = await db.get(Task, task_id)
     if not task:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Task not found")
     await db.delete(task)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # --------------------------------------------------------------------------- #
 # Drag-and-drop moves
 # --------------------------------------------------------------------------- #
-@router.post("/{task_id}/move", response_model=TaskOut)
 async def move_task(
-    task_id: str, payload: TaskMove, db: AsyncSession = Depends(get_db)
+    db: AsyncSession, task_id: str, payload: TaskMove
 ) -> TaskOut:
     task = await _load_task_full(db, task_id)
 
@@ -252,14 +213,7 @@ async def move_task(
     task.position = position
     await db.flush()
 
-    # Re-pack positions of siblings in the affected column(s) to keep them contiguous.
-    if payload.status_id and payload.status_id != new_status:
-        old_stmt = (
-            select(Task)
-            .where(Task.project_id == task.project_id, Task.status_id == payload.status_id)
-            .order_by(Task.position)
-        )
-    # Always re-pack the destination column
+    # Re-pack positions of siblings in the destination column
     siblings_stmt = (
         select(Task)
         .where(Task.project_id == new_project, Task.status_id == new_status)
@@ -274,27 +228,11 @@ async def move_task(
     return TaskOut.model_validate(task)
 
 
-@router.post("/bulk-move", response_model=list[TaskOut])
-async def bulk_move_tasks(
-    payload: TaskBulkMove, db: AsyncSession = Depends(get_db)
-) -> list[TaskOut]:
-    """Apply many position/status updates at once (used after column reordering)."""
-    # We expect each TaskMove to also carry the task id via the route design —
-    # since the schema doesn't include id, we apply them positionally.
-    # For a cleaner API, prefer /tasks/{id}/move per card.
-    raise HTTPException(
-        status.HTTP_501_NOT_IMPLEMENTED,
-        "Use POST /api/v1/tasks/{task_id}/move for each card after drag-and-drop. "
-        "Bulk endpoint is reserved for future batch APIs.",
-    )
-
-
 # --------------------------------------------------------------------------- #
 # Nested notes
 # --------------------------------------------------------------------------- #
-@router.post("/{task_id}/notes", response_model=NoteOut, status_code=status.HTTP_201_CREATED)
 async def add_task_note(
-    task_id: str, payload: NoteCreate, db: AsyncSession = Depends(get_db)
+    db: AsyncSession, task_id: str, payload: NoteCreate
 ) -> NoteOut:
     task = await db.get(Task, task_id)
     if not task:
@@ -309,18 +247,12 @@ async def add_task_note(
 # --------------------------------------------------------------------------- #
 # Nested micro-todos
 # --------------------------------------------------------------------------- #
-@router.post(
-    "/{task_id}/microtodos",
-    response_model=MicroTodoOut,
-    status_code=status.HTTP_201_CREATED,
-)
 async def add_task_microtodo(
-    task_id: str, payload: MicroTodoCreate, db: AsyncSession = Depends(get_db)
+    db: AsyncSession, task_id: str, payload: MicroTodoCreate
 ) -> MicroTodoOut:
     task = await db.get(Task, task_id)
     if not task:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Task not found")
-    # Determine next position
     stmt = (
         select(func.coalesce(func.max(MicroTodo.position), -1))
         .where(MicroTodo.task_id == task_id)

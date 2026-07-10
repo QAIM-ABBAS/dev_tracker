@@ -1,13 +1,13 @@
-"""Micro-todos router — nested checklists inside tasks."""
+"""Micro-todos endpoint — nested checklists inside tasks."""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.models import MicroTodo, Task
-from app.schemas import MicroTodoCreate, MicroTodoOut, MicroTodoUpdate
+from app.db.session import get_db
+from app.models.microtodo import MicroTodo
+from app.schemas.microtodo import MicroTodoCreate, MicroTodoOut, MicroTodoUpdate
 
 router = APIRouter(prefix="/microtodos", tags=["microtodos"])
 

@@ -1,13 +1,13 @@
-"""Tags router — many-to-many labels."""
+"""Tags endpoint — many-to-many labels CRUD."""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database import get_db
-from app.models import Tag
-from app.schemas import TagCreate, TagOut, TagUpdate
+from app.db.session import get_db
+from app.models.tag import Tag
+from app.schemas.tag import TagCreate, TagOut, TagUpdate
 
 router = APIRouter(prefix="/tags", tags=["tags"])
 

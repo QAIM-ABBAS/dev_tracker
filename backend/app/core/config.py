@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     # --- Webhook security ---
     WEBHOOK_SECRET: str = "change-me-in-production"
 
+    # --- JWT Security ---
+    SECRET_KEY: str = "your-secret-key-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
+
     @property
     def sqlalchemy_database_url(self) -> str:
         if self.DATABASE_URL:

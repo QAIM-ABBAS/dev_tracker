@@ -12,17 +12,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
-from app.database import init_db
-from app.routers import (
-    microtodos,
-    notes,
-    projects,
-    statuses,
-    tags,
-    tasks,
-    webhooks,
-)
+from app.core.config import settings
+from app.db.session import init_db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -81,12 +72,7 @@ async def health() -> dict:
     return {"status": "ok"}
 
 
-# Register API routers
-api_prefix = settings.API_V1_PREFIX
-app.include_router(projects.router, prefix=api_prefix)
-app.include_router(statuses.router, prefix=api_prefix)
-app.include_router(tags.router, prefix=api_prefix)
-app.include_router(tasks.router, prefix=api_prefix)
-app.include_router(notes.router, prefix=api_prefix)
-app.include_router(microtodos.router, prefix=api_prefix)
-app.include_router(webhooks.router, prefix=api_prefix)
+# Register V1 API router
+from app.api.v1.router import api_router  # noqa: E402
+
+app.include_router(api_router, prefix=settings.API_V1_PREFIX)
