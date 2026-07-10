@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: theme("fontFamily.sans");
+  background: #020617;
+  color: #f1f5f9;
+  overflow: hidden;
+}
+
+/* ----- Scrollbar ----- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 8px;
+  border: 2px solid #020617;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* ----- Reusable component classes ----- */
+@layer components {
+  .pf-input {
+    @apply w-full rounded-md border border-ink-700 bg-ink-900/60 px-3 py-2 text-sm
+           text-ink-100 placeholder-ink-500 outline-none transition
+           focus:border-accent focus:ring-1 focus:ring-accent/40;
+  }
+
+  .pf-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium
+           transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .pf-btn-primary {
+    @apply pf-btn bg-accent text-white hover:bg-accent-hover;
+  }
+
+  .pf-btn-ghost {
+    @apply pf-btn text-ink-300 hover:bg-ink-800 hover:text-ink-100;
+  }
+
+  .pf-card {
+    @apply rounded-lg border border-ink-800 bg-ink-900/70 shadow-sm;
+  }
+
+  .pf-tag {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium;
+  }
+
+  .pf-kbd {
+    @apply inline-flex items-center justify-center rounded border border-ink-600
+           bg-ink-800 px-1.5 py-0.5 font-mono text-[10px] text-ink-300;
+  }
+}
+
+/* ----- Markdown rendering ----- */
+.pf-markdown {
+  @apply text-sm leading-relaxed text-ink-200;
+}
+.pf-markdown h1 {
+  @apply mb-2 mt-4 text-lg font-semibold text-ink-100;
+}
+.pf-markdown h2 {
+  @apply mb-2 mt-3 text-base font-semibold text-ink-100;
+}
+.pf-markdown h3 {
+  @apply mb-1 mt-2 text-sm font-semibold text-ink-100;
+}
+.pf-markdown p {
+  @apply my-2;
+}
+.pf-markdown ul {
+  @apply my-2 ml-5 list-disc space-y-1;
+}
+.pf-markdown ol {
+  @apply my-2 ml-5 list-decimal space-y-1;
+}
+.pf-markdown code {
+  @apply rounded bg-ink-800 px-1 py-0.5 font-mono text-[12px] text-ink-100;
+}
+.pf-markdown pre {
+  @apply my-3 overflow-x-auto rounded-lg border border-ink-800 bg-ink-950 p-3;
+}
+.pf-markdown pre code {
+  @apply bg-transparent p-0 text-[12px];
+}
+.pf-markdown blockquote {
+  @apply my-2 border-l-2 border-accent/60 pl-3 text-ink-400;
+}
+.pf-markdown a {
+  @apply text-accent underline underline-offset-2 hover:text-accent-hover;
+}
+.pf-markdown table {
+  @apply my-3 w-full border-collapse text-xs;
+}
+.pf-markdown th,
+.pf-markdown td {
+  @apply border border-ink-700 px-2 py-1 text-left;
+}
+.pf-markdown hr {
+  @apply my-4 border-ink-700;
+}

@@ -1,0 +1,57 @@
+{
+  "agent_role": "Expert Full-Stack Software Architect & Senior UI/UX Engineer",
+  "project_specification": {
+    "name": "ProjectFlow (Working Title)",
+    "description": "A hyper-fast, minimalist, developer-centric project tracking application built for maximum usability, instant UI responses, and simple self-hosting.",
+    "ux_ui_philosophy": {
+      "interaction_model": "Keyboard-first navigation with drag-and-drop fallback. Zero-latency perception using optimistic UI updates.",
+      "status_transitions": "Fluid Kanban columns with smooth drag-and-drop transitions, alongside quick drop-down select menus on card hover and keyboard hotkeys (e.g., 'M' to move status).",
+      "inline_editing": "Click-to-edit inline descriptions and titles with auto-save. Hovering over a task block exposes a quick-add field for rapid note-taking, descriptions, or nested to-do checkboxes without opening a full modal."
+    },
+    "core_lifecycles": [
+      "Planning / Backlog",
+      "Yet to Start",
+      "In Process",
+      "Blocked",
+      "Finished"
+    ],
+    "feature_requirements": {
+      "task_management": {
+        "rich_text": "Full Markdown support for descriptions and comments with syntax highlighting for code snippets.",
+        "micro_tasks": "Nested to-do checklists within individual tasks that show a progress bar on the main card view.",
+        "speed_add": "Global hotkey command menu (like Cmd+K) to create tasks, assign statuses, or add notes instantly from anywhere in the app."
+      },
+      "developer_integrations": {
+        "api_first": "100% of frontend actions map directly to a public, fully-documented RESTful API.",
+        "webhooks": "Git-hook and deployment integration to automatically transition task statuses based on PR merges or container deployments (e.g., moving to 'Finished' on successful deployment)."
+      }
+    },
+    "technical_stack": {
+      "frontend": {
+        "framework": "React (Vite)",
+        "language": "TypeScript",
+        "styling": "Tailwind CSS",
+        "state_management": "Zustand (for lightweight, blazing-fast state) or TanStack Query (for seamless server state and cache invalidation)"
+      },
+      "backend": {
+        "framework": "FastAPI (Python)",
+        "async_processing": "Fully asynchronous router endpoints for high performance and low overhead",
+        "documentation": "Auto-generated OpenAPI/Swagger documentation accessible out-of-the-box"
+      },
+      "database": {
+        "engine": "PostgreSQL",
+        "orm": "SQLAlchemy (Async) or Tortoise ORM",
+        "relationships": "One-to-many (Projects to Tasks), Many-to-many (Tasks to Tags/Labels), One-to-many (Tasks to Sub-To-Dos/Notes)"
+      },
+      "devops_infrastructure": {
+        "containerization": "Multi-stage Dockerfile configurations separating frontend build and backend runtime layers.",
+        "orchestration": "A unified `docker-compose.yml` defining PostgreSQL, the FastAPI backend container, the React frontend container, and internal networking for instant local spin-up or self-hosting behind a reverse proxy."
+      }
+    }
+  },
+  "generation_instructions": {
+    "step_1_database": "Generate the relational database schema models based on the specified SQLAlchemy async stack, ensuring strict indexing on project IDs and task statuses for rapid queries.",
+    "step_2_backend_api": "Scaffold the FastAPI application structure, including async CRUD endpoints for projects, tasks, statuses, notes, and micro-to-dos.",
+    "step_3_frontend_scaffold": "Create the structural layout for the React client using Tailwind CSS, implementing a clean, layout-stable Kanban board layout with components optimized for fast inline interactions."
+  }
+}
