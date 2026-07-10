@@ -11,17 +11,11 @@ interface Props {
   onChange?: (value: string) => void;
   placeholder?: string;
   editable?: boolean;
-  /** Auto-save debounce in ms. Calls onSave after pause. */
   autoSaveMs?: number;
   onSave?: (value: string) => void;
   minHeight?: number;
 }
 
-/**
- * Inline Markdown editor with auto-save.
- * - Click pencil to edit, eye to preview.
- * - Auto-saves on blur and after `autoSaveMs` of inactivity.
- */
 export function MarkdownEditor({
   value,
   onChange,
@@ -36,10 +30,8 @@ export function MarkdownEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Re-sync when external value changes (e.g. after a refetch)
   useEffect(() => {
     if (value !== draft) setDraft(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const scheduleSave = (next: string) => {
@@ -96,24 +88,24 @@ export function MarkdownEditor({
             {value}
           </ReactMarkdown>
         ) : (
-          <span className="text-ink-600">No content yet.</span>
+          <span className="text-[#042630]">No content yet.</span>
         )}
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border border-ink-800 bg-ink-900/60">
+    <div className="rounded-md border border-teal-800/30 bg-[#042630]/60">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-ink-800 px-2 py-1">
+      <div className="flex items-center justify-between border-b border-teal-800/30 px-2 py-1">
         <div className="flex gap-1">
           <button
             onClick={() => setMode("edit")}
             className={cn(
               "rounded px-2 py-0.5 text-[10px] uppercase tracking-wide transition",
               mode === "edit"
-                ? "bg-ink-700 text-ink-100"
-                : "text-ink-500 hover:text-ink-300"
+                ? "bg-[#042630] text-[#d0d6d6]"
+                : "text-[#4c7273] hover:text-[#86b9b0]"
             )}
           >
             <Pencil size={10} className="mr-1 inline" />
@@ -124,15 +116,15 @@ export function MarkdownEditor({
             className={cn(
               "rounded px-2 py-0.5 text-[10px] uppercase tracking-wide transition",
               mode === "preview"
-                ? "bg-ink-700 text-ink-100"
-                : "text-ink-500 hover:text-ink-300"
+                ? "bg-[#042630] text-[#d0d6d6]"
+                : "text-[#4c7273] hover:text-[#86b9b0]"
             )}
           >
             <Eye size={10} className="mr-1 inline" />
             Preview
           </button>
         </div>
-        <span className="text-[10px] text-ink-600">
+        <span className="text-[10px] text-[#042630]">
           {mode === "edit" ? "Markdown supported · auto-saves" : ""}
         </span>
       </div>
@@ -145,7 +137,7 @@ export function MarkdownEditor({
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="w-full resize-y bg-transparent p-2 text-sm text-ink-100 outline-none placeholder-ink-600"
+          className="w-full resize-y bg-transparent p-2 text-sm text-[#d0d6d6] outline-none placeholder-[#042630]"
           style={{ minHeight }}
         />
       ) : (
@@ -180,7 +172,7 @@ export function MarkdownEditor({
               {draft}
             </ReactMarkdown>
           ) : (
-            <span className="text-ink-600">Nothing to preview.</span>
+            <span className="text-[#042630]">Nothing to preview.</span>
           )}
         </div>
       )}

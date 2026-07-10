@@ -9,14 +9,14 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUIStore } from "@/stores/uiStore";
+import { useUIStore } from "@/features/board/store/uiStore";
 import {
   useCreateProject,
   useCreateTask,
   useProjects,
   useStatuses,
   useTags,
-} from "@/hooks/useApi";
+} from "@/features/board/api/hooks";
 
 interface CommandItem {
   id: string;
@@ -119,7 +119,7 @@ export function CommandPalette() {
         if (!name) return;
         const p = await createProject.mutateAsync({
           name,
-          color: "#6366f1",
+          color: "#86b9b0",
         });
         setActiveProject(p.id);
         setActiveProjectObj(p);
@@ -127,7 +127,7 @@ export function CommandPalette() {
       },
     });
 
-    // Tag info (display only — clicking just closes)
+    // Tag info
     if (tags && tags.length > 0) {
       for (const t of tags.slice(0, 5)) {
         out.push({
@@ -175,12 +175,10 @@ export function CommandPalette() {
     return Array.from(m.entries());
   }, [filtered]);
 
-  // Reset active index when filtered list changes
   useEffect(() => {
     setActiveIdx(0);
   }, [query]);
 
-  // Scroll active into view
   useEffect(() => {
     const el = listRef.current?.querySelector(`[data-idx="${activeIdx}"]`);
     el?.scrollIntoView({ block: "nearest" });
@@ -211,19 +209,19 @@ export function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-xl overflow-hidden rounded-xl border border-ink-700 bg-ink-900 shadow-2xl animate-scale-in"
+        className="w-full max-w-xl overflow-hidden rounded-xl border border-teal-800/30 bg-[#041421] shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
-        <div className="flex items-center gap-2 border-b border-ink-800 px-3">
-          <Search size={16} className="text-ink-500" />
+        <div className="flex items-center gap-2 border-b border-teal-800/30 px-3">
+          <Search size={16} className="text-[#4c7273]" />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search…"
-            className="flex-1 bg-transparent py-3 text-sm text-ink-100 outline-none placeholder-ink-500"
+            className="flex-1 bg-transparent py-3 text-sm text-[#d0d6d6] outline-none placeholder-[#4c7273]"
           />
           <kbd className="pf-kbd">Esc</kbd>
         </div>
@@ -231,14 +229,14 @@ export function CommandPalette() {
         {/* Results */}
         <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-2">
           {grouped.length === 0 && (
-            <div className="px-3 py-6 text-center text-sm text-ink-500">
+            <div className="px-3 py-6 text-center text-sm text-[#4c7273]">
               No matching commands.
             </div>
           )}
 
           {grouped.map(([group, groupItems]) => (
             <div key={group} className="mb-1">
-              <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-500">
+              <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#4c7273]">
                 {group}
               </div>
               {groupItems.map((item) => {
@@ -253,10 +251,10 @@ export function CommandPalette() {
                     onClick={() => item.action()}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors",
-                      isActive ? "bg-accent text-white" : "text-ink-200 hover:bg-ink-800"
+                      isActive ? "bg-[#4c7273] text-white" : "text-[#d0d6d6] hover:bg-[#042630]"
                     )}
                   >
-                    <span className={isActive ? "text-white" : "text-ink-400"}>
+                    <span className={isActive ? "text-white" : "text-[#4c7273]"}>
                       {item.icon}
                     </span>
                     <span className="flex-1 truncate">{item.label}</span>
@@ -264,7 +262,7 @@ export function CommandPalette() {
                       <span
                         className={cn(
                           "text-[10px]",
-                          isActive ? "text-white/70" : "text-ink-500"
+                          isActive ? "text-white/70" : "text-[#4c7273]"
                         )}
                       >
                         {item.hint}
@@ -281,7 +279,7 @@ export function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-ink-800 px-3 py-2 text-[10px] text-ink-500">
+        <div className="flex items-center justify-between border-t border-teal-800/30 px-3 py-2 text-[10px] text-[#4c7273]">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Square size={9} /> ↑↓ navigate

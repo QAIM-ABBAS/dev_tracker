@@ -5,8 +5,8 @@ import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Status, TaskCard as TaskCardType } from "@/types";
 import { TaskCard } from "./TaskCard";
-import { useCreateTask } from "@/hooks/useApi";
-import { useUIStore } from "@/stores/uiStore";
+import { useCreateTask } from "@/features/board/api/hooks";
+import { useUIStore } from "@/features/board/store/uiStore";
 
 interface Props {
   status: Status;
@@ -48,15 +48,15 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
           className="h-2 w-2 rounded-full"
           style={{ backgroundColor: status.color }}
         />
-        <h3 className="flex-1 text-xs font-semibold uppercase tracking-wider text-ink-300">
+        <h3 className="flex-1 text-xs font-semibold uppercase tracking-wider text-[#86b9b0]">
           {status.name}
         </h3>
-        <span className="rounded-full bg-ink-800 px-1.5 py-0.5 text-[10px] text-ink-400">
+        <span className="rounded-full bg-[#042630] px-1.5 py-0.5 text-[10px] text-[#4c7273]">
           {tasks.length}
         </span>
         <button
           onClick={() => setAdding(true)}
-          className="rounded p-0.5 text-ink-500 hover:bg-ink-800 hover:text-ink-200"
+          className="rounded p-0.5 text-[#4c7273] hover:bg-[#042630] hover:text-[#86b9b0]"
           title="Add task"
         >
           <Plus size={14} />
@@ -68,7 +68,7 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         ref={setNodeRef}
         className={cn(
           "flex-1 space-y-2 overflow-y-auto rounded-lg p-1 transition-colors",
-          isOver && "bg-accent/5 ring-1 ring-accent/30"
+          isOver && "bg-[#86b9b0]/5 ring-1 ring-[#86b9b0]/30"
         )}
       >
         <SortableContext
@@ -86,14 +86,14 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         </SortableContext>
 
         {tasks.length === 0 && !adding && (
-          <div className="rounded-lg border border-dashed border-ink-800 p-4 text-center text-[11px] text-ink-600">
+          <div className="rounded-lg border border-dashed border-teal-800/30 p-4 text-center text-[11px] text-[#4c7273]">
             Drop tasks here
           </div>
         )}
 
-        {/* Quick-add input (revealed on hover via the + button) */}
+        {/* Quick-add input */}
         {adding && (
-          <div className="rounded-lg border border-ink-700 bg-ink-900 p-2 animate-scale-in">
+          <div className="rounded-lg border border-teal-800/30 bg-[#042630] p-2 animate-scale-in">
             <textarea
               autoFocus
               value={title}

@@ -5,24 +5,32 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Minimalist developer-tool palette
+        // ProjectFlow color palette
+        pf: {
+          950: "#041421",
+          900: "#042630",
+          700: "#4c7273",
+          400: "#86b9b0",
+          100: "#d0d6d6",
+        },
+        // Legacy ink palette (for backward compatibility)
         ink: {
           50: "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-          300: "#cbd5e1",
-          400: "#94a3b8",
-          500: "#64748b",
-          600: "#475569",
-          700: "#334155",
-          800: "#1e293b",
-          900: "#0f172a",
-          950: "#020617",
+          100: "#d0d6d6",
+          200: "#d0d6d6",
+          300: "#86b9b0",
+          400: "#4c7273",
+          500: "#4c7273",
+          600: "#042630",
+          700: "#042630",
+          800: "#041421",
+          900: "#041421",
+          950: "#041421",
         },
         accent: {
-          DEFAULT: "#6366f1",
-          hover: "#4f46e5",
-          subtle: "#eef2ff",
+          DEFAULT: "#86b9b0",
+          hover: "#4c7273",
+          subtle: "#042630",
         },
       },
       fontFamily: {

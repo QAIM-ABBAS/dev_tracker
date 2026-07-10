@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/lib/axios";
 import type {
   MicroTodo,
   Note,
@@ -11,14 +11,6 @@ import type {
   TaskMoveInput,
   TaskUpdateInput,
 } from "@/types";
-
-const API_BASE = "/api/v1";
-
-export const api = axios.create({
-  baseURL: API_BASE,
-  headers: { "Content-Type": "application/json" },
-  timeout: 15_000,
-});
 
 // ----- Projects -----
 export const projectsApi = {

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useUIStore } from "@/stores/uiStore";
+import { useUIStore } from "@/features/board/store/uiStore";
 
 interface HotkeyOptions {
   onMoveStatus?: (direction: -1 | 1) => void;
@@ -68,7 +68,7 @@ export function useGlobalHotkeys(opts: HotkeyOptions = {}) {
         return;
       }
 
-      // "/" → focus search (we just clear and let user type into the palette)
+      // "/" → focus search
       if (e.key === "/") {
         e.preventDefault();
         setSearchQuery("");

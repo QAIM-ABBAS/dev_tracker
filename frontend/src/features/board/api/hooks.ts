@@ -10,7 +10,7 @@ import {
   statusesApi,
   tagsApi,
   tasksApi,
-} from "@/api/client";
+} from "@/features/board/api/client";
 import type {
   MicroTodo,
   Note,
@@ -23,7 +23,7 @@ import type {
   TaskMoveInput,
   TaskUpdateInput,
 } from "@/types";
-import { useUIStore } from "@/stores/uiStore";
+import { useUIStore } from "@/features/board/store/uiStore";
 
 // --------------------------------------------------------------------------- #
 // Query keys
@@ -114,7 +114,6 @@ export function useTaskCards() {
   return useQuery<TaskCard[]>({
     queryKey: qk.taskCards(activeProjectId),
     queryFn: () => tasksApi.cards(activeProjectId ?? undefined),
-    // Optimistic UI: refetch aggressively but keep stale data visible
     staleTime: 0,
   });
 }
@@ -187,7 +186,6 @@ export function useUpdateTask() {
           old.map((t) => (t.id === id ? { ...t, ...data } : t))
         );
       }
-      // Also patch detail cache
       const dKey = qk.task(id);
       const dPrev = qc.getQueryData<Task>(dKey);
       if (dPrev) {
@@ -383,5 +381,4 @@ export function useDeleteMicroTodo() {
   });
 }
 
-// Notes type re-export for convenience
 export type { Note };

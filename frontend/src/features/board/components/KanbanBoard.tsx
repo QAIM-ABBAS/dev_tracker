@@ -12,8 +12,8 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanSquare, Search } from "lucide-react";
-import { useStatuses, useTaskCards, useMoveTask } from "@/hooks/useApi";
-import { useUIStore } from "@/stores/uiStore";
+import { useStatuses, useTaskCards, useMoveTask } from "@/features/board/api/hooks";
+import { useUIStore } from "@/features/board/store/uiStore";
 import { TaskColumn } from "./TaskColumn";
 import { TaskCard } from "./TaskCard";
 import type { TaskCard as TaskCardType } from "@/types";
@@ -103,7 +103,7 @@ export function KanbanBoard() {
   if (statusesLoading || cardsLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="animate-pulse text-sm text-ink-500">Loading board…</div>
+        <div className="animate-pulse text-sm text-[#4c7273]">Loading board…</div>
       </div>
     );
   }
@@ -112,9 +112,9 @@ export function KanbanBoard() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <KanbanSquare size={32} className="mx-auto mb-2 text-ink-600" />
-          <p className="text-sm text-ink-400">No statuses defined.</p>
-          <p className="text-xs text-ink-500">
+          <KanbanSquare size={32} className="mx-auto mb-2 text-[#042630]" />
+          <p className="text-sm text-[#4c7273]">No statuses defined.</p>
+          <p className="text-xs text-[#4c7273]">
             The backend should seed default statuses on first boot.
           </p>
         </div>
@@ -125,19 +125,19 @@ export function KanbanBoard() {
   return (
     <div className="flex h-full flex-col">
       {/* Board header */}
-      <div className="flex h-14 items-center gap-3 border-b border-ink-800 px-4">
-        <h2 className="text-sm font-semibold text-ink-100">
+      <div className="flex h-14 items-center gap-3 border-b border-teal-800/30 px-4">
+        <h2 className="text-sm font-semibold text-[#d0d6d6]">
           {activeProject ? activeProject.name : "All Projects"}
         </h2>
         {activeProject?.description && (
-          <span className="hidden truncate text-xs text-ink-500 md:block">
+          <span className="hidden truncate text-xs text-[#4c7273] md:block">
             {activeProject.description}
           </span>
         )}
         <div className="relative ml-auto">
           <Search
             size={13}
-            className="absolute left-2 top-1/2 -translate-y-1/2 text-ink-500"
+            className="absolute left-2 top-1/2 -translate-y-1/2 text-[#4c7273]"
           />
           <input
             value={searchQuery}
@@ -166,8 +166,6 @@ export function KanbanBoard() {
         </div>
 
         <DragOverlay>
-          {/* Optional floating preview — empty here since the card already
-              shows at low opacity during drag. */}
           {null}
         </DragOverlay>
       </DndContext>

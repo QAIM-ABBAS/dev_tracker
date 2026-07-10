@@ -5,7 +5,6 @@ import {
   Calendar,
   CheckSquare,
   GripVertical,
-  MessageSquare,
   Trash2,
 } from "lucide-react";
 import { cn, formatShortDate } from "@/lib/utils";
@@ -16,8 +15,8 @@ import {
   useMoveTask,
   useTaskCards,
   useUpdateTask,
-} from "@/hooks/useApi";
-import { useUIStore } from "@/stores/uiStore";
+} from "@/features/board/api/hooks";
+import { useUIStore } from "@/features/board/store/uiStore";
 
 interface Props {
   task: TaskCardType;
@@ -74,7 +73,6 @@ export function TaskCard({ task, status, statuses }: Props) {
 
   const handleQuickMove = (newStatusId: string) => {
     if (newStatusId === task.status_id) return;
-    // Compute new position = end of destination column
     const destCount =
       allCards?.filter((c) => c.status_id === newStatusId).length ?? 0;
     moveTask.mutate({
@@ -93,8 +91,8 @@ export function TaskCard({ task, status, statuses }: Props) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "pf-card group relative cursor-pointer p-2.5 transition-shadow hover:border-ink-700 hover:shadow-md",
-        isDragging && "ring-2 ring-accent/50"
+        "pf-card group relative cursor-pointer p-2.5 transition-shadow hover:border-[#4c7273] hover:shadow-md",
+        isDragging && "ring-2 ring-[#86b9b0]/50"
       )}
       onClick={() => openDetail(task.id)}
     >
@@ -106,7 +104,7 @@ export function TaskCard({ task, status, statuses }: Props) {
 
       {/* Drag handle */}
       <button
-        className="absolute -left-1 top-1/2 -translate-y-1/2 cursor-grab text-ink-600 opacity-0 hover:text-ink-400 group-hover:opacity-100 active:cursor-grabbing"
+        className="absolute -left-1 top-1/2 -translate-y-1/2 cursor-grab text-[#042630] opacity-0 hover:text-[#4c7273] group-hover:opacity-100 active:cursor-grabbing"
         {...attributes}
         {...listeners}
         onClick={(e) => e.stopPropagation()}
@@ -134,7 +132,7 @@ export function TaskCard({ task, status, statuses }: Props) {
         />
       ) : (
         <h4
-          className="cursor-text px-1 text-sm font-medium leading-snug text-ink-100"
+          className="cursor-text px-1 text-sm font-medium leading-snug text-[#d0d6d6]"
           onClick={(e) => {
             e.stopPropagation();
             setEditingTitle(true);
@@ -147,7 +145,7 @@ export function TaskCard({ task, status, statuses }: Props) {
 
       {/* Description preview */}
       {task.description && (
-        <p className="mt-1 line-clamp-2 px-1 text-xs text-ink-400">
+        <p className="mt-1 line-clamp-2 px-1 text-xs text-[#4c7273]">
           {task.description.replace(/[#*`>\-_~]/g, "").slice(0, 120)}
         </p>
       )}
@@ -173,14 +171,14 @@ export function TaskCard({ task, status, statuses }: Props) {
       {/* Micro-todo progress */}
       {microProgress !== null && (
         <div className="mt-2 px-1">
-          <div className="flex items-center gap-1.5 text-[10px] text-ink-500">
+          <div className="flex items-center gap-1.5 text-[10px] text-[#4c7273]">
             <CheckSquare size={11} />
             <span>
               {task.micro_todo_done}/{task.micro_todo_total}
             </span>
-            <div className="ml-auto h-1 flex-1 overflow-hidden rounded-full bg-ink-800">
+            <div className="ml-auto h-1 flex-1 overflow-hidden rounded-full bg-[#041421]">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all"
+                className="h-full rounded-full bg-[#86b9b0] transition-all"
                 style={{ width: `${microProgress}%` }}
               />
             </div>
@@ -191,13 +189,13 @@ export function TaskCard({ task, status, statuses }: Props) {
       {/* Footer: due date, quick status select, delete */}
       <div className="mt-2 flex items-center gap-1 px-1">
         {task.due_date && (
-          <span className="inline-flex items-center gap-1 text-[10px] text-ink-500">
+          <span className="inline-flex items-center gap-1 text-[10px] text-[#4c7273]">
             <Calendar size={11} />
             {formatShortDate(task.due_date)}
           </span>
         )}
 
-        {/* Quick status dropdown (hover-revealed) */}
+        {/* Quick status dropdown */}
         <select
           value={task.status_id}
           onChange={(e) => {
@@ -205,12 +203,12 @@ export function TaskCard({ task, status, statuses }: Props) {
             handleQuickMove(e.target.value);
           }}
           onClick={(e) => e.stopPropagation()}
-          className="ml-auto cursor-pointer rounded border border-transparent bg-transparent px-1 py-0.5 text-[10px] text-ink-500 opacity-0 transition hover:border-ink-700 hover:bg-ink-800 group-hover:opacity-100"
+          className="ml-auto cursor-pointer rounded border border-transparent bg-transparent px-1 py-0.5 text-[10px] text-[#4c7273] opacity-0 transition hover:border-teal-800/30 hover:bg-[#042630] group-hover:opacity-100"
           title="Quick move"
           style={{ color: status.color }}
         >
           {statuses.map((s) => (
-            <option key={s.id} value={s.id} className="bg-ink-900 text-ink-100">
+            <option key={s.id} value={s.id} className="bg-[#041421] text-[#d0d6d6]">
               {s.name}
             </option>
           ))}
@@ -221,7 +219,7 @@ export function TaskCard({ task, status, statuses }: Props) {
             e.stopPropagation();
             if (confirm("Delete this task?")) deleteTask.mutate(task.id);
           }}
-          className="rounded p-0.5 text-ink-600 opacity-0 hover:text-red-400 group-hover:opacity-100"
+          className="rounded p-0.5 text-[#042630] opacity-0 hover:text-red-400 group-hover:opacity-100"
           title="Delete task"
         >
           <Trash2 size={11} />

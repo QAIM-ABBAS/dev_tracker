@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MicroTodo as MicroTodoType } from "@/types";
 import {
   useAddMicroTodo,
   useDeleteMicroTodo,
   useToggleMicroTodo,
-} from "@/hooks/useApi";
+} from "@/features/board/api/hooks";
 
 interface Props {
   taskId: string;
@@ -34,19 +34,19 @@ export function MicroTodoList({ taskId, todos }: Props) {
     <div>
       {/* Header + progress */}
       <div className="mb-2 flex items-center justify-between">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-ink-400">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-[#86b9b0]">
           Checklist
         </h4>
         {total > 0 && (
-          <span className="text-[10px] text-ink-500">
+          <span className="text-[10px] text-[#4c7273]">
             {done}/{total} · {pct}%
           </span>
         )}
       </div>
       {total > 0 && (
-        <div className="mb-2 h-1 overflow-hidden rounded-full bg-ink-800">
+        <div className="mb-2 h-1 overflow-hidden rounded-full bg-[#041421]">
           <div
-            className="h-full bg-emerald-500 transition-all"
+            className="h-full bg-[#86b9b0] transition-all"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -57,7 +57,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
         {todos.map((t) => (
           <li
             key={t.id}
-            className="group flex items-center gap-2 rounded px-1 py-1 hover:bg-ink-800/50"
+            className="group flex items-center gap-2 rounded px-1 py-1 hover:bg-[#042630]/50"
           >
             <button
               onClick={() =>
@@ -66,8 +66,8 @@ export function MicroTodoList({ taskId, todos }: Props) {
               className={cn(
                 "grid h-4 w-4 shrink-0 place-items-center rounded border transition",
                 t.completed
-                  ? "border-emerald-500 bg-emerald-500 text-white"
-                  : "border-ink-600 hover:border-ink-400"
+                  ? "border-[#86b9b0] bg-[#86b9b0] text-white"
+                  : "border-[#042630] hover:border-[#4c7273]"
               )}
             >
               {t.completed && (
@@ -86,15 +86,15 @@ export function MicroTodoList({ taskId, todos }: Props) {
               className={cn(
                 "flex-1 text-sm",
                 t.completed
-                  ? "text-ink-500 line-through"
-                  : "text-ink-200"
+                  ? "text-[#4c7273] line-through"
+                  : "text-[#d0d6d6]"
               )}
             >
               {t.content}
             </span>
             <button
               onClick={() => deleteTodo.mutate(t.id)}
-              className="rounded p-0.5 text-ink-600 opacity-0 hover:text-red-400 group-hover:opacity-100"
+              className="rounded p-0.5 text-[#042630] opacity-0 hover:text-red-400 group-hover:opacity-100"
               title="Delete"
             >
               <X size={12} />
@@ -107,7 +107,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
       <div className="mt-2 flex items-center gap-1">
         <button
           onClick={handleAdd}
-          className="rounded p-1 text-ink-500 hover:bg-ink-800 hover:text-ink-300"
+          className="rounded p-1 text-[#4c7273] hover:bg-[#042630] hover:text-[#86b9b0]"
           title="Add checklist item"
         >
           <Plus size={14} />
@@ -119,7 +119,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
             if (e.key === "Enter") handleAdd();
           }}
           placeholder="Add a checklist item…"
-          className="flex-1 bg-transparent text-sm text-ink-200 outline-none placeholder-ink-600"
+          className="flex-1 bg-transparent text-sm text-[#d0d6d6] outline-none placeholder-[#042630]"
         />
       </div>
     </div>
