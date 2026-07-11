@@ -17,6 +17,7 @@ A hyper-fast, minimalist, developer-centric project tracking application. Built 
 - **Quick status select** — hover a card and pick a new status from the dropdown, no drag required.
 - **API-first** — 100% of UI actions map to a public RESTful endpoint. Auto-generated Swagger at `/docs`.
 - **Git & deploy webhooks** — POST to `/api/v1/webhooks/git` or `/api/v1/webhooks/deploy` to advance task statuses from CI/CD.
+- **User authentication** — JWT-based auth with registration, login, and protected endpoints.
 
 ---
 
@@ -27,18 +28,31 @@ A hyper-fast, minimalist, developer-centric project tracking application. Built 
 ├── backend/                      # FastAPI application
 │   ├── app/
 │   │   ├── main.py               # App entry + lifespan (auto-creates tables & seeds)
-│   │   ├── config.py             # Pydantic settings (env-driven)
-│   │   ├── database.py           # Async SQLAlchemy engine + session factory
-│   │   ├── models.py             # ORM: Project, Status, Tag, Task, Note, MicroTodo
-│   │   ├── schemas.py            # Pydantic v2 request/response schemas
-│   │   └── routers/
+│   │   ├── core/
+│   │   │   ├── config.py         # Pydantic BaseSettings (env vars)
+│   │   │   └── security.py       # JWT auth, password hashing, webhook verification
+│   │   ├── db/
+│   │   │   └── session.py        # SQLAlchemy async engine + session factory
+│   │   ├── models/               # SQLAlchemy ORM models
+│   │   │   ├── base.py           # Declarative base
+│   │   │   ├── project.py
+│   │   │   ├── task.py
+│   │   │   ├── user.py           # User model for authentication
+│   │   │   └── ...
+│   │   ├── schemas/              # Pydantic v2 request/response schemas
+│   │   ├── services/             # Business logic (CRUD operations)
+│   │   │   ├── project_srv.py
+│   │   │   ├── task_srv.py
+│   │   │   └── user_srv.py       # User auth + CRUD
+│   │   └── api/v1/endpoints/     # API routers
 │   │       ├── projects.py
-│   │       ├── statuses.py
-│   │       ├── tags.py
-│   │       ├── tasks.py          # CRUD + /move + nested notes & micro-todos
-│   │       ├── notes.py
-│   │       ├── microtodos.py
-│   │       └── webhooks.py       # Git PR + deploy integrations
+│   │       ├── tasks.py
+│   │       ├── users.py          # Registration, login, profile
+│   │       └── ...
+│   ├── tests/                    # Pytest tests
+│   │   ├── api/
+│   │   └── crud/
+│   ├── alembic/                  # Database migrations
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/                     # React (Vite) + TypeScript + Tailwind
@@ -121,6 +135,11 @@ All endpoints live under `/api/v1`. Full OpenAPI spec at `/api/v1/openapi.json`.
 
 | Resource       | Endpoint                                   | Methods                                  |
 |----------------|--------------------------------------------|------------------------------------------|
+| Users          | `/users/register`                          | `POST` (create account)                  |
+|                | `/users/login`                             | `POST` (get JWT token)                   |
+|                | `/users/me`                                | `GET` (current user profile)             |
+|                | `/users`                                   | `GET` (list all, auth required)          |
+|                | `/users/{id}`                              | `GET`, `PATCH`, `DELETE` (auth required) |
 | Projects       | `/projects`                                | `GET`, `POST`                            |
 |                | `/projects/{id}`                           | `GET`, `PATCH`, `DELETE`                 |
 | Statuses       | `/statuses`                                | `GET`, `POST`                            |
@@ -181,6 +200,16 @@ curl -X POST http://localhost:8000/api/v1/webhooks/deploy \
 ## Database schema
 
 ```text
+users
+  ├── id (PK)
+  ├── email (UNIQUE)
+  ├── username (UNIQUE)
+  ├── hashed_password
+  ├── is_active
+  ├── is_superuser
+  ├── created_at
+  └── updated_at
+
 projects 1──N tasks N──N tags
               │
               ├── 1──N notes
@@ -189,9 +218,10 @@ projects 1──N tasks N──N tags
 statuses 1──N tasks
 
 Indexes:
+  - users (email) UNIQUE
+  - users (username) UNIQUE
   - tasks (project_id, status_id)
   - tasks (project_id, position)
-  - tasks (project_id), (status_id), (position)
   - micro_todos (task_id, position)
   - tags (name) UNIQUE
 ```
@@ -201,7 +231,7 @@ Indexes:
 ## Tech stack
 
 - **Frontend**: React 18 + Vite 6 + TypeScript 5, Tailwind CSS 3, Zustand 5, TanStack Query 5, @dnd-kit, react-markdown, react-syntax-highlighter, lucide-react
-- **Backend**: FastAPI 0.115, SQLAlchemy 2 (async), asyncpg, Pydantic v2, uvicorn
+- **Backend**: FastAPI 0.115, SQLAlchemy 2 (async), asyncpg, Pydantic v2, uvicorn, python-jose (JWT), passlib (bcrypt)
 - **Database**: PostgreSQL 16
 - **DevOps**: Docker multi-stage builds, docker-compose, nginx for SPA + API proxy
 
