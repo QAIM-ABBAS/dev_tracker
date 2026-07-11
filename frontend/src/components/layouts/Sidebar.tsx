@@ -1,8 +1,27 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import {
   ChevronDown,
   ChevronRight,
   FolderKanban,
+  GripVertical,
   MoreHorizontal,
   Plus,
   Search,
@@ -16,10 +35,70 @@ import {
   useCreateProject,
   useDeleteProject,
   useProjects,
+  useReorderProjects,
   useUpdateProject,
 } from "@/features/board/api/hooks";
 import type { Project } from "@/types";
 import { PROJECT_STATUSES } from "@/types";
+
+interface SortableProjectItemProps {
+  project: Project;
+  isActive: boolean;
+  onSelect: (p: Project | null) => void;
+  onContextMenu: (e: React.MouseEvent, p: Project) => void;
+  contextMenuProject: string | null;
+}
+
+function SortableProjectItem({ project, isActive, onSelect, onContextMenu, contextMenuProject }: SortableProjectItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn("group flex items-center", isDragging && "z-50")}
+    >
+      <button
+        {...attributes}
+        {...listeners}
+        className="cursor-grab p-0.5 text-pf-700 opacity-0 group-hover:opacity-100 active:cursor-grabbing"
+        title="Drag to reorder"
+      >
+        <GripVertical size={12} />
+      </button>
+      <button
+        onClick={() => onSelect(project)}
+        className={cn(
+          "pf-btn-ghost flex-1 justify-start text-xs",
+          isActive && "bg-pf-900 text-pf-100"
+        )}
+        title={project.name}
+      >
+        <span
+          className="h-2.5 w-2.5 shrink-0 rounded-sm"
+          style={{ backgroundColor: PROJECT_STATUSES.find((s) => s.name === project.status)?.color || "var(--pf-700)" }}
+        />
+        <span className="flex-1 truncate text-left">{project.name}</span>
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onContextMenu(e, project);
+        }}
+        className="pf-btn-ghost h-7 w-7 p-0 opacity-0 group-hover:opacity-100"
+        title="Project options"
+      >
+        <MoreHorizontal size={12} />
+      </button>
+    </div>
+  );
+}
 
 export function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
@@ -36,21 +115,30 @@ export function Sidebar() {
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
   const updateProject = useUpdateProject();
+  const reorderProjects = useReorderProjects();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const [addingProject, setAddingProject] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [contextMenuProject, setContextMenuProject] = useState<string | null>(null);
   const [statusSubMenu, setStatusSubMenu] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (!contextMenuProject) {
       setStatusSubMenu(false);
+      setMenuPos(null);
       return;
     }
     const close = () => {
       setContextMenuProject(null);
       setStatusSubMenu(false);
+      setMenuPos(null);
     };
     window.addEventListener("click", close);
     return () => window.removeEventListener("click", close);
@@ -80,6 +168,16 @@ export function Sidebar() {
     if (!confirm("Delete this project and all its tasks?")) return;
     await deleteProject.mutateAsync(id);
     if (activeProjectId === id) handleSelect(null);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !projects) return;
+
+    const oldIndex = projects.findIndex((p) => p.id === active.id);
+    const newIndex = projects.findIndex((p) => p.id === over.id);
+    const newOrder = arrayMove(projects, oldIndex, newIndex).map((p) => p.id);
+    reorderProjects.mutate(newOrder);
   };
 
   return (
@@ -200,100 +298,38 @@ export function Sidebar() {
               projectsExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
             )}
           >
-            <div className="min-h-0">
+            <div className="overflow-hidden min-h-0">
               <div className="border-l border-pf-700/30 ml-5 pl-2">
                 {isLoading && (
                   <div className="px-2 py-2 text-xs text-pf-700">Loading…</div>
                 )}
 
-                {projects?.map((p) => (
-                  <div
-                    key={p.id}
-                    className="group relative flex items-center"
-                  >
-                    <button
-                      onClick={() => handleSelect(p)}
-                      className={cn(
-                        "pf-btn-ghost flex-1 justify-start text-xs",
-                        activeProjectId === p.id && "bg-pf-900 text-pf-100"
-                      )}
-                      title={p.name}
-                    >
-                      <span
-                        className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                        style={{ backgroundColor: p.color || "var(--pf-400)" }}
-                      />
-                      <span className="flex-1 truncate text-left">{p.name}</span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setContextMenuProject(contextMenuProject === p.id ? null : p.id);
-                        setStatusSubMenu(false);
-                      }}
-                      className="pf-btn-ghost h-7 w-7 p-0 opacity-0 group-hover:opacity-100"
-                      title="Project options"
-                    >
-                      <MoreHorizontal size={12} />
-                    </button>
-
-                    {/* Context menu */}
-                    {contextMenuProject === p.id && (
-                      <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl">
-                        {/* Status */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setStatusSubMenu(!statusSubMenu);
-                          }}
-                          className="flex w-full items-center justify-between px-3 py-1.5 text-xs text-pf-100 hover:bg-pf-950 transition-colors"
-                        >
-                          <span>Status</span>
-                          <ChevronRight size={12} className={cn("text-pf-700 transition-transform", statusSubMenu && "rotate-90")} />
-                        </button>
-
-                        {/* Status submenu */}
-                        {statusSubMenu && (
-                          <div className="border-t border-teal-800/30">
-                            {PROJECT_STATUSES.map((s) => (
-                              <button
-                                key={s.name}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  updateProject.mutate({ id: p.id, data: { status: s.name } });
-                                  setContextMenuProject(null);
-                                  setStatusSubMenu(false);
-                                }}
-                                className={cn(
-                                  "flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-pf-950",
-                                  p.status === s.name ? "text-pf-100" : "text-pf-700"
-                                )}
-                              >
-                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
-                                {s.name}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Delete */}
-                        <div className="border-t border-teal-800/30">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(p.id);
+                {!isLoading && projects && (
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+                      {projects.map((p) => (
+                        <SortableProjectItem
+                          key={p.id}
+                          project={p}
+                          isActive={activeProjectId === p.id}
+                          onSelect={handleSelect}
+                          onContextMenu={(e, proj) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            if (contextMenuProject === proj.id) {
                               setContextMenuProject(null);
-                            }}
-                            className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-[#f50505] hover:bg-[#f73434] hover:text-white transition-colors"
-                          >
-                            <Trash2 size={12} />
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                              setMenuPos(null);
+                            } else {
+                              setContextMenuProject(proj.id);
+                              setMenuPos({ x: rect.right, y: rect.bottom });
+                            }
+                            setStatusSubMenu(false);
+                          }}
+                          contextMenuProject={contextMenuProject}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+                )}
 
                 {projects && projects.length === 0 && (
                   <button
@@ -328,6 +364,75 @@ export function Sidebar() {
             <span>v1.0.0 · FastAPI + React</span>
           </div>
         </div>
+      )}
+
+      {/* Context menu portal */}
+      {contextMenuProject && menuPos && createPortal(
+        (() => {
+          const p = projects?.find((proj) => proj.id === contextMenuProject);
+          if (!p) return null;
+          return (
+            <div
+              className="fixed z-50 w-44 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl"
+              style={{ left: menuPos.x + 4, top: menuPos.y }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Status */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setStatusSubMenu(!statusSubMenu);
+                }}
+                className="flex w-full items-center justify-between px-3 py-1.5 text-xs text-pf-100 hover:bg-pf-950 transition-colors"
+              >
+                <span>Status</span>
+                <ChevronRight size={12} className={cn("text-pf-700 transition-transform", statusSubMenu && "rotate-90")} />
+              </button>
+
+              {/* Status submenu */}
+              {statusSubMenu && (
+                <div className="border-t border-teal-800/30">
+                  {PROJECT_STATUSES.map((s) => (
+                    <button
+                      key={s.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateProject.mutate({ id: p.id, data: { status: s.name } });
+                        setContextMenuProject(null);
+                        setStatusSubMenu(false);
+                        setMenuPos(null);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-pf-950",
+                        p.status === s.name ? "text-pf-100" : "text-pf-700"
+                      )}
+                    >
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Delete */}
+              <div className="border-t border-teal-800/30">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(p.id);
+                    setContextMenuProject(null);
+                    setMenuPos(null);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-[#f50505] hover:bg-[#f73434] hover:text-white transition-colors"
+                >
+                  <Trash2 size={12} />
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })(),
+        document.body
       )}
     </aside>
   );
