@@ -22,6 +22,8 @@ import type { Project } from "@/types";
 export function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const projectsExpanded = useUIStore((s) => s.projectsExpanded);
+  const toggleProjects = useUIStore((s) => s.toggleProjects);
   const activeProjectId = useUIStore((s) => s.activeProjectId);
   const setActiveProject = useUIStore((s) => s.setActiveProject);
   const setActiveProjectObj = useUIStore((s) => s.setActiveProjectObj);
@@ -159,63 +161,73 @@ export function Sidebar() {
         )}
 
         <button
-          onClick={() => handleSelect(null)}
+          onClick={toggleProjects}
           className={cn(
             "pf-btn-ghost w-full justify-start text-xs",
-            activeProjectId === null && "bg-pf-900 text-pf-100"
+            activeProjectId === null && !projectsExpanded && "bg-pf-900 text-pf-100"
           )}
-          title="All projects"
+          title={projectsExpanded ? "Collapse projects" : "Expand projects"}
         >
           <FolderKanban size={14} />
           {!collapsed && <span className="flex-1 text-left">All Projects</span>}
+          {!collapsed && (
+            projectsExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />
+          )}
         </button>
 
-        {isLoading && !collapsed && (
-          <div className="px-2 py-2 text-xs text-pf-700">Loading…</div>
-        )}
-
-        {projects?.map((p) => (
+        {!collapsed && (
           <div
-            key={p.id}
-            className="group flex items-center"
-          >
-            <button
-              onClick={() => handleSelect(p)}
-              className={cn(
-                "pf-btn-ghost flex-1 justify-start text-xs",
-                activeProjectId === p.id && "bg-pf-900 text-pf-100"
-              )}
-              title={p.name}
-            >
-              <span
-                className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                style={{ backgroundColor: p.color || "var(--pf-400)" }}
-              />
-              {!collapsed && (
-                <span className="flex-1 truncate text-left">{p.name}</span>
-              )}
-              {!collapsed && (
-                <span className="text-[10px] text-pf-700">{p.task_count}</span>
-              )}
-            </button>
-            {!collapsed && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(p.id);
-                }}
-                className="pf-btn-ghost h-7 w-7 p-0 opacity-0 group-hover:opacity-100"
-                title="Delete project"
-              >
-                <Trash2 size={12} />
-              </button>
+            className={cn(
+              "grid transition-[grid-template-rows] duration-200 ease-in-out",
+              projectsExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
             )}
-          </div>
-        ))}
+          >
+            <div className="overflow-hidden min-h-0">
+              <div className="border-l border-pf-700/30 ml-5 pl-2">
+                {isLoading && (
+                  <div className="px-2 py-2 text-xs text-pf-700">Loading…</div>
+                )}
 
-        {projects && projects.length === 0 && !collapsed && (
-          <div className="px-2 py-3 text-xs text-pf-700">
-            No projects yet. Create one above.
+                {projects?.map((p) => (
+                  <div
+                    key={p.id}
+                    className="group flex items-center"
+                  >
+                    <button
+                      onClick={() => handleSelect(p)}
+                      className={cn(
+                        "pf-btn-ghost flex-1 justify-start text-xs",
+                        activeProjectId === p.id && "bg-pf-900 text-pf-100"
+                      )}
+                      title={p.name}
+                    >
+                      <span
+                        className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                        style={{ backgroundColor: p.color || "var(--pf-400)" }}
+                      />
+                      <span className="flex-1 truncate text-left">{p.name}</span>
+                      <span className="text-[10px] text-pf-700">{p.task_count}</span>
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(p.id);
+                      }}
+                      className="pf-btn-ghost h-7 w-7 p-0 opacity-0 group-hover:opacity-100"
+                      title="Delete project"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                ))}
+
+                {projects && projects.length === 0 && (
+                  <div className="px-2 py-3 text-xs text-pf-700">
+                    No projects yet. Create one above.
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>

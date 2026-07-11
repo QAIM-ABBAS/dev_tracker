@@ -6,6 +6,10 @@ interface UIState {
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
 
+  // Projects list expanded state
+  projectsExpanded: boolean;
+  toggleProjects: () => void;
+
   // Active project filter (null = "All Projects")
   activeProjectId: string | null;
   setActiveProject: (id: string | null) => void;
@@ -36,6 +40,9 @@ interface UIState {
 export const useUIStore = create<UIState>((set) => ({
   sidebarCollapsed: false,
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+
+  projectsExpanded: true,
+  toggleProjects: () => set((s) => ({ projectsExpanded: !s.projectsExpanded })),
 
   activeProjectId: null,
   setActiveProject: (id) => set({ activeProjectId: id }),
