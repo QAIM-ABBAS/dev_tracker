@@ -64,11 +64,11 @@ async def seed_default_statuses() -> None:
     from app.models.status import Status
 
     default_statuses = [
-        ("Planning / Backlog", 0, "#8b5cf6"),
-        ("Yet to Start", 1, "#64748b"),
-        ("In Process", 2, "#0ea5e9"),
-        ("Blocked", 3, "#ef4444"),
-        ("Finished", 4, "#22c55e"),
+        ("Todo", 0, "#64748b"),
+        ("In Process", 1, "#0ea5e9"),
+        ("Finished", 2, "#22c55e"),
+        ("Test", 3, "#f59e0b"),
+        ("Closed", 4, "#ef4444"),
     ]
 
     async with AsyncSessionLocal() as session:
