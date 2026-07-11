@@ -41,10 +41,17 @@ export function Sidebar() {
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [contextMenuProject, setContextMenuProject] = useState<string | null>(null);
+  const [statusSubMenu, setStatusSubMenu] = useState(false);
 
   useEffect(() => {
-    if (!contextMenuProject) return;
-    const close = () => setContextMenuProject(null);
+    if (!contextMenuProject) {
+      setStatusSubMenu(false);
+      return;
+    }
+    const close = () => {
+      setContextMenuProject(null);
+      setStatusSubMenu(false);
+    };
     window.addEventListener("click", close);
     return () => window.removeEventListener("click", close);
   }, [contextMenuProject]);
@@ -202,7 +209,7 @@ export function Sidebar() {
                 {projects?.map((p) => (
                   <div
                     key={p.id}
-                    className="group relative flex items-center"
+                    className="group flex items-center"
                   >
                     <button
                       onClick={() => handleSelect(p)}
@@ -222,58 +229,13 @@ export function Sidebar() {
                       onClick={(e) => {
                         e.stopPropagation();
                         setContextMenuProject(contextMenuProject === p.id ? null : p.id);
+                        setStatusSubMenu(false);
                       }}
                       className="pf-btn-ghost h-7 w-7 p-0 opacity-0 group-hover:opacity-100"
                       title="Project options"
                     >
                       <MoreHorizontal size={12} />
                     </button>
-
-                    {/* Context menu */}
-                    {contextMenuProject === p.id && (
-                      <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl">
-                        {/* Status submenu */}
-                        <div className="group/sub relative">
-                          <div className="flex items-center justify-between px-3 py-1.5 text-xs text-pf-100 hover:bg-pf-950 cursor-default">
-                            <span>Status</span>
-                            <ChevronRight size={12} className="text-pf-700" />
-                          </div>
-                          <div className="hidden group-hover/sub:block absolute left-full top-0 ml-1 w-40 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl">
-                            {PROJECT_STATUSES.map((s) => (
-                              <button
-                                key={s.name}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  updateProject.mutate({ id: p.id, data: { status: s.name } });
-                                  setContextMenuProject(null);
-                                }}
-                                className={cn(
-                                  "flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-pf-950",
-                                  p.status === s.name ? "text-pf-100" : "text-pf-700"
-                                )}
-                              >
-                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
-                                {s.name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        {/* Delete */}
-                        <div className="border-t border-teal-800/30">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(p.id);
-                              setContextMenuProject(null);
-                            }}
-                            className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
-                          >
-                            <Trash2 size={12} />
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ))}
 
@@ -300,6 +262,66 @@ export function Sidebar() {
             </div>
           </div>
         )}
+
+        {/* Context menu — rendered outside overflow-hidden to avoid clipping */}
+        {contextMenuProject && (() => {
+          const p = projects?.find((proj) => proj.id === contextMenuProject);
+          if (!p) return null;
+          return (
+            <div className="relative z-50 mt-1 ml-5 w-44 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl">
+              {/* Status */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setStatusSubMenu(!statusSubMenu);
+                }}
+                className="flex w-full items-center justify-between px-3 py-1.5 text-xs text-pf-100 hover:bg-pf-950 transition-colors"
+              >
+                <span>Status</span>
+                <ChevronRight size={12} className={cn("text-pf-700 transition-transform", statusSubMenu && "rotate-90")} />
+              </button>
+
+              {/* Status submenu */}
+              {statusSubMenu && (
+                <div className="border-t border-teal-800/30">
+                  {PROJECT_STATUSES.map((s) => (
+                    <button
+                      key={s.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateProject.mutate({ id: p.id, data: { status: s.name } });
+                        setContextMenuProject(null);
+                        setStatusSubMenu(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-pf-950",
+                        p.status === s.name ? "text-pf-100" : "text-pf-700"
+                      )}
+                    >
+                      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Delete */}
+              <div className="border-t border-teal-800/30">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(p.id);
+                    setContextMenuProject(null);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 size={12} />
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Footer */}
