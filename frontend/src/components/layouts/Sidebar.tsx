@@ -222,9 +222,23 @@ export function Sidebar() {
                 ))}
 
                 {projects && projects.length === 0 && (
-                  <div className="px-2 py-3 text-xs text-pf-700">
-                    No projects yet. Create one above.
-                  </div>
+                  <button
+                    onClick={() => setAddingProject(true)}
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs text-pf-700 hover:bg-pf-900 hover:text-pf-400 transition-colors"
+                  >
+                    <Plus size={12} />
+                    <span>Add project</span>
+                  </button>
+                )}
+
+                {projects && projects.length > 0 && projects.length < 12 && (
+                  <button
+                    onClick={() => setAddingProject(true)}
+                    className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs text-pf-700 hover:bg-pf-900 hover:text-pf-400 transition-colors"
+                  >
+                    <Plus size={12} />
+                    <span>Add project</span>
+                  </button>
                 )}
               </div>
             </div>
