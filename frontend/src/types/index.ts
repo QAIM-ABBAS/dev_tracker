@@ -66,6 +66,7 @@ export interface Project {
   name: string;
   description: string | null;
   color: string;
+  status: string;
   created_at: string;
   updated_at: string;
   task_count: number;
@@ -105,4 +106,12 @@ export const PRIORITY_COLORS = [
   "#0ea5e9",
   "#f59e0b",
   "#ef4444",
+] as const;
+
+export const PROJECT_STATUSES = [
+  { name: "Planning", color: "#8b5cf6" },
+  { name: "Yet to Start", color: "#64748b" },
+  { name: "In Process", color: "#0ea5e9" },
+  { name: "Blocked", color: "#ef4444" },
+  { name: "Finished", color: "#22c55e" },
 ] as const;

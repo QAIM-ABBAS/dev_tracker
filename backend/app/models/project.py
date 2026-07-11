@@ -21,6 +21,7 @@ class Project(Base):
     name: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     color: Mapped[str] = mapped_column(String(20), default="#6366f1")
+    status: Mapped[str] = mapped_column(String(50), default="Planning")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow

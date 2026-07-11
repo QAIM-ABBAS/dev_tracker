@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
   FolderKanban,
+  MoreHorizontal,
   Plus,
   Search,
   Settings,
@@ -18,6 +19,7 @@ import {
   useUpdateProject,
 } from "@/features/board/api/hooks";
 import type { Project } from "@/types";
+import { PROJECT_STATUSES } from "@/types";
 
 export function Sidebar() {
   const collapsed = useUIStore((s) => s.sidebarCollapsed);
@@ -38,6 +40,14 @@ export function Sidebar() {
   const [addingProject, setAddingProject] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [contextMenuProject, setContextMenuProject] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!contextMenuProject) return;
+    const close = () => setContextMenuProject(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [contextMenuProject]);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -45,6 +55,7 @@ export function Sidebar() {
       name: newName.trim(),
       description: newDesc.trim() || null,
       color: "#86b9b0",
+      status: "Planning",
     });
     setNewName("");
     setNewDesc("");
@@ -191,7 +202,7 @@ export function Sidebar() {
                 {projects?.map((p) => (
                   <div
                     key={p.id}
-                    className="group flex items-center"
+                    className="group relative flex items-center"
                   >
                     <button
                       onClick={() => handleSelect(p)}
@@ -206,18 +217,63 @@ export function Sidebar() {
                         style={{ backgroundColor: p.color || "var(--pf-400)" }}
                       />
                       <span className="flex-1 truncate text-left">{p.name}</span>
-                      <span className="text-[10px] text-pf-700">{p.task_count}</span>
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(p.id);
+                        setContextMenuProject(contextMenuProject === p.id ? null : p.id);
                       }}
                       className="pf-btn-ghost h-7 w-7 p-0 opacity-0 group-hover:opacity-100"
-                      title="Delete project"
+                      title="Project options"
                     >
-                      <Trash2 size={12} />
+                      <MoreHorizontal size={12} />
                     </button>
+
+                    {/* Context menu */}
+                    {contextMenuProject === p.id && (
+                      <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl">
+                        {/* Status submenu */}
+                        <div className="group/sub relative">
+                          <div className="flex items-center justify-between px-3 py-1.5 text-xs text-pf-100 hover:bg-pf-950 cursor-default">
+                            <span>Status</span>
+                            <ChevronRight size={12} className="text-pf-700" />
+                          </div>
+                          <div className="hidden group-hover/sub:block absolute left-full top-0 ml-1 w-40 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl">
+                            {PROJECT_STATUSES.map((s) => (
+                              <button
+                                key={s.name}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateProject.mutate({ id: p.id, data: { status: s.name } });
+                                  setContextMenuProject(null);
+                                }}
+                                className={cn(
+                                  "flex w-full items-center gap-2 px-3 py-1.5 text-xs transition-colors hover:bg-pf-950",
+                                  p.status === s.name ? "text-pf-100" : "text-pf-700"
+                                )}
+                              >
+                                <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+                                {s.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Delete */}
+                        <div className="border-t border-teal-800/30">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(p.id);
+                              setContextMenuProject(null);
+                            }}
+                            className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                          >
+                            <Trash2 size={12} />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
 
