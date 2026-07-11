@@ -33,9 +33,9 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "projectflow"
     POSTGRES_PASSWORD: str = "projectflow"
     POSTGRES_DB: str = "projectflow"
-    POSTGRES_HOST: str = "db"
+    POSTGRES_HOST: str = "127.0.0.1"
     POSTGRES_PORT: int = 5432
-    DATABASE_URL: str = ""
+    DATABASE_URL: str = "postgresql+asyncpg://projectflow:YourNewPassword123!@localhost:5432/projectflow"
 
     # --- Webhook security ---
     WEBHOOK_SECRET: str = "change-me-in-production"

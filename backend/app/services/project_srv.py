@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.project import Project
 from app.models.task import Task
-from app.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
+from app.schemas.project import ProjectCreate, ProjectOut, ProjectReorder, ProjectUpdate
 
 
 async def list_projects(db: AsyncSession) -> list[ProjectOut]:
@@ -19,7 +19,7 @@ async def list_projects(db: AsyncSession) -> list[ProjectOut]:
         )
         .outerjoin(Task, Task.project_id == Project.id)
         .group_by(Project.id)
-        .order_by(Project.created_at.desc())
+        .order_by(Project.position.asc(), Project.created_at.desc())
     )
     rows = (await db.execute(stmt)).all()
     out: list[ProjectOut] = []
@@ -29,7 +29,9 @@ async def list_projects(db: AsyncSession) -> list[ProjectOut]:
 
 
 async def create_project(db: AsyncSession, payload: ProjectCreate) -> ProjectOut:
-    project = Project(**payload.model_dump())
+    # Set position to end of list
+    max_pos = await db.scalar(select(func.coalesce(func.max(Project.position), -1)))
+    project = Project(**payload.model_dump(), position=max_pos + 1)
     db.add(project)
     await db.flush()
     await db.refresh(project)
@@ -68,3 +70,11 @@ async def delete_project(db: AsyncSession, project_id: str) -> None:
     if not project:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Project not found")
     await db.delete(project)
+
+
+async def reorder_projects(db: AsyncSession, ordered_ids: list[str]) -> None:
+    for idx, project_id in enumerate(ordered_ids):
+        project = await db.get(Project, project_id)
+        if project:
+            project.position = idx
+    await db.flush()

@@ -12,6 +12,7 @@ class ProjectBase(BaseModel):
     description: Optional[str] = None
     color: str = "#6366f1"
     status: str = "Planning"
+    position: int = 0
 
 
 class ProjectCreate(ProjectBase):
@@ -23,6 +24,11 @@ class ProjectUpdate(BaseModel):
     description: Optional[str] = None
     color: Optional[str] = None
     status: Optional[str] = None
+    position: Optional[int] = None
+
+
+class ProjectReorder(BaseModel):
+    ordered_ids: list[str]
 
 
 class ProjectOut(ProjectBase):

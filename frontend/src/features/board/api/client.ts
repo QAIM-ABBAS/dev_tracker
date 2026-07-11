@@ -21,6 +21,8 @@ export const projectsApi = {
   update: (id: string, data: Partial<Project>) =>
     api.patch<Project>(`/projects/${id}`, data).then((r) => r.data),
   delete: (id: string) => api.delete(`/projects/${id}`),
+  reorder: (orderedIds: string[]) =>
+    api.post("/projects/reorder", { ordered_ids: orderedIds }),
 };
 
 // ----- Statuses -----

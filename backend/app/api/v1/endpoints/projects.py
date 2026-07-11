@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
+from app.schemas.project import ProjectCreate, ProjectOut, ProjectReorder, ProjectUpdate
 from app.services import project_srv
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -21,6 +21,12 @@ async def list_projects(db: AsyncSession = Depends(get_db)) -> list[ProjectOut]:
 @router.post("/", response_model=ProjectOut, include_in_schema=False, status_code=status.HTTP_201_CREATED)
 async def create_project(payload: ProjectCreate, db: AsyncSession = Depends(get_db)) -> ProjectOut:
     return await project_srv.create_project(db, payload)
+
+
+@router.post("/reorder", status_code=status.HTTP_204_NO_CONTENT)
+async def reorder_projects(payload: ProjectReorder, db: AsyncSession = Depends(get_db)) -> Response:
+    await project_srv.reorder_projects(db, payload.ordered_ids)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get("/{project_id}", response_model=ProjectOut)

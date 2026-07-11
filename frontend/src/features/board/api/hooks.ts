@@ -76,6 +76,30 @@ export function useDeleteProject() {
   });
 }
 
+export function useReorderProjects() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (orderedIds: string[]) => projectsApi.reorder(orderedIds),
+    onMutate: async (orderedIds) => {
+      await qc.cancelQueries({ queryKey: qk.projects });
+      const prev = qc.getQueryData<Project[]>(qk.projects);
+      if (prev) {
+        const reordered = orderedIds
+          .map((id) => prev.find((p) => p.id === id))
+          .filter(Boolean) as Project[];
+        qc.setQueryData<Project[]>(qk.projects, reordered);
+      }
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(qk.projects, ctx.prev);
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: qk.projects });
+    },
+  });
+}
+
 // --------------------------------------------------------------------------- #
 // Statuses
 // --------------------------------------------------------------------------- #

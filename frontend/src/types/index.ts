@@ -67,6 +67,7 @@ export interface Project {
   description: string | null;
   color: string;
   status: string;
+  position: number;
   created_at: string;
   updated_at: string;
   task_count: number;
