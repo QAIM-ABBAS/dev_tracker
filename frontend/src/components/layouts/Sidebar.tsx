@@ -65,19 +65,19 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-teal-800/30 bg-[#041421] transition-all duration-200",
+        "flex h-full flex-col border-r border-teal-800/30 bg-pf-950 transition-all duration-200",
         collapsed ? "w-14" : "w-64"
       )}
     >
       {/* Brand */}
       <div className="flex h-14 items-center gap-2 border-b border-teal-800/30 px-3">
-        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#4c7273] text-white">
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-pf-700 text-white">
           <Zap size={16} strokeWidth={2.5} />
         </div>
         {!collapsed && (
           <div className="flex flex-1 flex-col leading-tight">
-            <span className="text-sm font-semibold text-[#d0d6d6]">ProjectFlow</span>
-            <span className="text-[10px] uppercase tracking-wider text-[#4c7273]">
+            <span className="text-sm font-semibold text-pf-100">ProjectFlow</span>
+            <span className="text-[10px] uppercase tracking-wider text-pf-700">
               dev tracker
             </span>
           </div>
@@ -114,7 +114,7 @@ export function Sidebar() {
 
       {/* New project form */}
       {addingProject && !collapsed && (
-        <div className="mx-2 mb-2 rounded-md border border-teal-800/30 bg-[#042630] p-2">
+        <div className="mx-2 mb-2 rounded-md border border-teal-800/30 bg-pf-900 p-2">
           <input
             autoFocus
             value={newName}
@@ -153,7 +153,7 @@ export function Sidebar() {
       {/* Projects list */}
       <div className="flex-1 overflow-y-auto px-2 pb-2">
         {!collapsed && (
-          <div className="px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#4c7273]">
+          <div className="px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-pf-700">
             Projects
           </div>
         )}
@@ -162,7 +162,7 @@ export function Sidebar() {
           onClick={() => handleSelect(null)}
           className={cn(
             "pf-btn-ghost w-full justify-start text-xs",
-            activeProjectId === null && "bg-[#042630] text-[#d0d6d6]"
+            activeProjectId === null && "bg-pf-900 text-pf-100"
           )}
           title="All projects"
         >
@@ -171,7 +171,7 @@ export function Sidebar() {
         </button>
 
         {isLoading && !collapsed && (
-          <div className="px-2 py-2 text-xs text-[#4c7273]">Loading…</div>
+          <div className="px-2 py-2 text-xs text-pf-700">Loading…</div>
         )}
 
         {projects?.map((p) => (
@@ -183,19 +183,19 @@ export function Sidebar() {
               onClick={() => handleSelect(p)}
               className={cn(
                 "pf-btn-ghost flex-1 justify-start text-xs",
-                activeProjectId === p.id && "bg-[#042630] text-[#d0d6d6]"
+                activeProjectId === p.id && "bg-pf-900 text-pf-100"
               )}
               title={p.name}
             >
               <span
                 className="h-2.5 w-2.5 shrink-0 rounded-sm"
-                style={{ backgroundColor: p.color || "#86b9b0" }}
+                style={{ backgroundColor: p.color || "var(--pf-400)" }}
               />
               {!collapsed && (
                 <span className="flex-1 truncate text-left">{p.name}</span>
               )}
               {!collapsed && (
-                <span className="text-[10px] text-[#4c7273]">{p.task_count}</span>
+                <span className="text-[10px] text-pf-700">{p.task_count}</span>
               )}
             </button>
             {!collapsed && (
@@ -214,7 +214,7 @@ export function Sidebar() {
         ))}
 
         {projects && projects.length === 0 && !collapsed && (
-          <div className="px-2 py-3 text-xs text-[#4c7273]">
+          <div className="px-2 py-3 text-xs text-pf-700">
             No projects yet. Create one above.
           </div>
         )}
@@ -222,7 +222,7 @@ export function Sidebar() {
 
       {/* Footer */}
       {!collapsed && (
-        <div className="border-t border-teal-800/30 p-3 text-[10px] text-[#4c7273]">
+        <div className="border-t border-teal-800/30 p-3 text-[10px] text-pf-700">
           <div className="flex items-center gap-2">
             <Settings size={11} />
             <span>v1.0.0 · FastAPI + React</span>

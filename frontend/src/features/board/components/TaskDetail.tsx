@@ -85,12 +85,12 @@ export function TaskDetail() {
       onClick={handleClose}
     >
       <div
-        className="flex h-full w-full max-w-xl flex-col border-l border-teal-800/30 bg-[#041421] shadow-2xl animate-scale-in"
+        className="flex h-full w-full max-w-xl flex-col border-l border-teal-800/30 bg-pf-950 shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex h-14 items-center gap-2 border-b border-teal-800/30 px-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#4c7273]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-pf-700">
             Task detail
           </span>
           <div className="ml-auto flex items-center gap-1">
@@ -114,7 +114,7 @@ export function TaskDetail() {
 
         {isLoading || !task ? (
           <div className="flex flex-1 items-center justify-center">
-            <div className="animate-pulse text-sm text-[#4c7273]">Loading task…</div>
+            <div className="animate-pulse text-sm text-pf-700">Loading task…</div>
           </div>
         ) : (
           <div className="flex-1 space-y-5 overflow-y-auto p-4">
@@ -126,19 +126,19 @@ export function TaskDetail() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") e.currentTarget.blur();
               }}
-              className="w-full bg-transparent text-lg font-semibold text-[#d0d6d6] outline-none"
+              className="w-full bg-transparent text-lg font-semibold text-pf-100 outline-none"
               placeholder="Task title"
             />
 
             {/* Meta row: status + priority + due date */}
             <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-xs">
-                <span className="text-[#4c7273]">Status</span>
+                <span className="text-pf-700">Status</span>
                 <div className="relative">
                   <select
                     value={task.status_id}
                     onChange={(e) => handleStatusChange(e.target.value)}
-                    className="appearance-none rounded-md border border-teal-800/30 bg-[#042630] py-1 pl-2 pr-7 text-xs text-[#d0d6d6] outline-none focus:border-[#86b9b0]"
+                    className="appearance-none rounded-md border border-teal-800/30 bg-pf-900 py-1 pl-2 pr-7 text-xs text-pf-100 outline-none focus:border-pf-400"
                   >
                     {statuses?.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -148,13 +148,13 @@ export function TaskDetail() {
                   </select>
                   <ChevronDown
                     size={12}
-                    className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#4c7273]"
+                    className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-pf-700"
                   />
                 </div>
               </label>
 
               <label className="flex items-center gap-2 text-xs">
-                <span className="text-[#4c7273]">Priority</span>
+                <span className="text-pf-700">Priority</span>
                 <div className="flex gap-0.5">
                   {PRIORITY_LABELS.map((label, i) => (
                     <button
@@ -164,7 +164,7 @@ export function TaskDetail() {
                         "rounded px-1.5 py-0.5 text-[10px] font-medium transition",
                         task.priority === i
                           ? "text-white"
-                          : "text-[#4c7273] hover:text-[#86b9b0]"
+                          : "text-pf-700 hover:text-pf-400"
                       )}
                       style={{
                         backgroundColor:
@@ -179,13 +179,13 @@ export function TaskDetail() {
               </label>
 
               {task.due_date && (
-                <span className="inline-flex items-center gap-1 text-xs text-[#4c7273]">
+                <span className="inline-flex items-center gap-1 text-xs text-pf-700">
                   <Calendar size={12} />
                   Due {formatDateTime(task.due_date)}
                 </span>
               )}
 
-              <span className="ml-auto text-[10px] text-[#042630]">
+              <span className="ml-auto text-[10px] text-pf-900">
                 Created {timeAgo(task.created_at)} · Updated {timeAgo(task.updated_at)}
               </span>
             </div>
@@ -193,7 +193,7 @@ export function TaskDetail() {
             {/* Tags */}
             {tags && tags.length > 0 && (
               <div>
-                <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#4c7273]">
+                <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-pf-700">
                   Tags
                 </h4>
                 <div className="flex flex-wrap gap-1">
@@ -227,7 +227,7 @@ export function TaskDetail() {
 
             {/* Description (markdown) */}
             <div>
-              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#4c7273]">
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-pf-700">
                 Description
               </h4>
               <MarkdownEditor
@@ -247,23 +247,23 @@ export function TaskDetail() {
 
             {/* Notes / comments */}
             <div>
-              <h4 className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-[#4c7273]">
+              <h4 className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-pf-700">
                 <MessageSquare size={12} />
                 Notes & Comments
               </h4>
 
               <div className="space-y-2">
                 {task.notes.length === 0 && (
-                  <p className="text-xs text-[#042630]">
+                  <p className="text-xs text-pf-900">
                     No notes yet. Add context, decisions, or code snippets below.
                   </p>
                 )}
                 {task.notes.map((note) => (
                   <div
                     key={note.id}
-                    className="group rounded-md border border-teal-800/30 bg-[#042630]/60 p-2"
+                    className="group rounded-md border border-teal-800/30 bg-pf-900/60 p-2"
                   >
-                    <div className="mb-1 flex items-center justify-between text-[10px] text-[#4c7273]">
+                    <div className="mb-1 flex items-center justify-between text-[10px] text-pf-700">
                       <span>{timeAgo(note.created_at)}</span>
                       <button
                         onClick={() => deleteNote.mutate(note.id)}
@@ -286,12 +286,12 @@ export function TaskDetail() {
               </div>
 
               {/* Quick add note */}
-              <div className="mt-2 rounded-md border border-teal-800/30 bg-[#042630]/60 p-2">
+              <div className="mt-2 rounded-md border border-teal-800/30 bg-pf-900/60 p-2">
                 <textarea
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   placeholder="Add a note… (markdown supported)"
-                  className="w-full resize-y bg-transparent text-sm text-[#d0d6d6] outline-none placeholder-[#042630]"
+                  className="w-full resize-y bg-transparent text-sm text-pf-100 outline-none placeholder-pf-900"
                   rows={3}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {

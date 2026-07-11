@@ -25,7 +25,7 @@ export default function BoardPage() {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#041421]">
+    <div className="flex h-screen w-screen overflow-hidden bg-pf-950">
       <Sidebar />
       <main className="flex-1 overflow-hidden">
         <KanbanBoard />

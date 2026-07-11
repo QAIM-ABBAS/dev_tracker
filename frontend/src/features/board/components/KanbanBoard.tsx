@@ -103,7 +103,7 @@ export function KanbanBoard() {
   if (statusesLoading || cardsLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div className="animate-pulse text-sm text-[#4c7273]">Loading board…</div>
+        <div className="animate-pulse text-sm text-pf-700">Loading board…</div>
       </div>
     );
   }
@@ -112,9 +112,9 @@ export function KanbanBoard() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <KanbanSquare size={32} className="mx-auto mb-2 text-[#042630]" />
-          <p className="text-sm text-[#4c7273]">No statuses defined.</p>
-          <p className="text-xs text-[#4c7273]">
+          <KanbanSquare size={32} className="mx-auto mb-2 text-pf-900" />
+          <p className="text-sm text-pf-700">No statuses defined.</p>
+          <p className="text-xs text-pf-700">
             The backend should seed default statuses on first boot.
           </p>
         </div>
@@ -126,18 +126,18 @@ export function KanbanBoard() {
     <div className="flex h-full flex-col">
       {/* Board header */}
       <div className="flex h-14 items-center gap-3 border-b border-teal-800/30 px-4">
-        <h2 className="text-sm font-semibold text-[#d0d6d6]">
+        <h2 className="text-sm font-semibold text-pf-100">
           {activeProject ? activeProject.name : "All Projects"}
         </h2>
         {activeProject?.description && (
-          <span className="hidden truncate text-xs text-[#4c7273] md:block">
+          <span className="hidden truncate text-xs text-pf-700 md:block">
             {activeProject.description}
           </span>
         )}
         <div className="relative ml-auto">
           <Search
             size={13}
-            className="absolute left-2 top-1/2 -translate-y-1/2 text-[#4c7273]"
+            className="absolute left-2 top-1/2 -translate-y-1/2 text-pf-700"
           />
           <input
             value={searchQuery}

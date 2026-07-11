@@ -5,32 +5,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ProjectFlow color palette
         pf: {
-          950: "#041421",
-          900: "#042630",
-          700: "#4c7273",
-          400: "#86b9b0",
-          100: "#d0d6d6",
+          950: "var(--pf-950)",
+          900: "var(--pf-900)",
+          700: "var(--pf-700)",
+          400: "var(--pf-400)",
+          100: "var(--pf-100)",
         },
-        // Legacy ink palette (for backward compatibility)
         ink: {
           50: "#f8fafc",
-          100: "#d0d6d6",
-          200: "#d0d6d6",
-          300: "#86b9b0",
-          400: "#4c7273",
-          500: "#4c7273",
-          600: "#042630",
-          700: "#042630",
-          800: "#041421",
-          900: "#041421",
-          950: "#041421",
+          100: "var(--pf-100)",
+          200: "var(--pf-100)",
+          300: "var(--pf-400)",
+          400: "var(--pf-700)",
+          500: "var(--pf-700)",
+          600: "var(--pf-900)",
+          700: "var(--pf-900)",
+          800: "var(--pf-950)",
+          900: "var(--pf-950)",
+          950: "var(--pf-950)",
         },
         accent: {
-          DEFAULT: "#86b9b0",
-          hover: "#4c7273",
-          subtle: "#042630",
+          DEFAULT: "var(--pf-400)",
+          hover: "var(--pf-700)",
+          subtle: "var(--pf-900)",
         },
       },
       fontFamily: {

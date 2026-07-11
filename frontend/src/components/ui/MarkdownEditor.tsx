@@ -88,14 +88,14 @@ export function MarkdownEditor({
             {value}
           </ReactMarkdown>
         ) : (
-          <span className="text-[#042630]">No content yet.</span>
+          <span className="text-pf-900">No content yet.</span>
         )}
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border border-teal-800/30 bg-[#042630]/60">
+    <div className="rounded-md border border-teal-800/30 bg-pf-900/60">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-teal-800/30 px-2 py-1">
         <div className="flex gap-1">
@@ -104,8 +104,8 @@ export function MarkdownEditor({
             className={cn(
               "rounded px-2 py-0.5 text-[10px] uppercase tracking-wide transition",
               mode === "edit"
-                ? "bg-[#042630] text-[#d0d6d6]"
-                : "text-[#4c7273] hover:text-[#86b9b0]"
+                ? "bg-pf-900 text-pf-100"
+                : "text-pf-700 hover:text-pf-400"
             )}
           >
             <Pencil size={10} className="mr-1 inline" />
@@ -116,15 +116,15 @@ export function MarkdownEditor({
             className={cn(
               "rounded px-2 py-0.5 text-[10px] uppercase tracking-wide transition",
               mode === "preview"
-                ? "bg-[#042630] text-[#d0d6d6]"
-                : "text-[#4c7273] hover:text-[#86b9b0]"
+                ? "bg-pf-900 text-pf-100"
+                : "text-pf-700 hover:text-pf-400"
             )}
           >
             <Eye size={10} className="mr-1 inline" />
             Preview
           </button>
         </div>
-        <span className="text-[10px] text-[#042630]">
+        <span className="text-[10px] text-pf-900">
           {mode === "edit" ? "Markdown supported · auto-saves" : ""}
         </span>
       </div>
@@ -137,7 +137,7 @@ export function MarkdownEditor({
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="w-full resize-y bg-transparent p-2 text-sm text-[#d0d6d6] outline-none placeholder-[#042630]"
+          className="w-full resize-y bg-transparent p-2 text-sm text-pf-100 outline-none placeholder-pf-900"
           style={{ minHeight }}
         />
       ) : (
@@ -172,7 +172,7 @@ export function MarkdownEditor({
               {draft}
             </ReactMarkdown>
           ) : (
-            <span className="text-[#042630]">Nothing to preview.</span>
+            <span className="text-pf-900">Nothing to preview.</span>
           )}
         </div>
       )}

@@ -42,14 +42,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-[#041421]">
-      <div className="w-full max-w-md rounded-lg border border-teal-800/30 bg-[#042630] p-8">
+    <div className="flex h-screen w-screen items-center justify-center bg-pf-950">
+      <div className="w-full max-w-md rounded-lg border border-teal-800/30 bg-pf-900 p-8">
         <div className="mb-8 flex flex-col items-center">
-          <div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-[#4c7273] text-white">
+          <div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-pf-700 text-white">
             <Zap size={24} strokeWidth={2.5} />
           </div>
-          <h1 className="text-xl font-semibold text-[#d0d6d6]">ProjectFlow</h1>
-          <p className="text-sm text-[#4c7273]">
+          <h1 className="text-xl font-semibold text-pf-100">ProjectFlow</h1>
+          <p className="text-sm text-pf-700">
             {isRegister ? "Create your account" : "Sign in to your account"}
           </p>
         </div>
@@ -57,7 +57,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {isRegister && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-[#86b9b0]">
+              <label className="mb-1 block text-xs font-medium text-pf-400">
                 Email
               </label>
               <input
@@ -71,7 +71,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#86b9b0]">
+            <label className="mb-1 block text-xs font-medium text-pf-400">
               Username
             </label>
             <input
@@ -84,7 +84,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-[#86b9b0]">
+            <label className="mb-1 block text-xs font-medium text-pf-400">
               Password
             </label>
             <input
@@ -112,14 +112,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-[#4c7273]">
+        <div className="mt-6 text-center text-sm text-pf-700">
           {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
           <button
             onClick={() => {
               setIsRegister(!isRegister);
               setError("");
             }}
-            className="text-[#86b9b0] hover:underline"
+            className="text-pf-400 hover:underline"
           >
             {isRegister ? "Sign In" : "Register"}
           </button>

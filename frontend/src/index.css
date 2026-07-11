@@ -3,6 +3,16 @@
 @tailwind utilities;
 
 :root {
+  /* === Design Tokens === */
+  --pf-950: #041421;
+  --pf-900: #042630;
+  --pf-700: #4c7273;
+  --pf-400: #86b9b0;
+  --pf-100: #d0d6d6;
+
+  /* Border (30% opacity of pf-700) */
+  --pf-border: rgba(76, 114, 115, 0.3);
+
   color-scheme: dark;
 }
 
@@ -20,8 +30,8 @@ body,
 body {
   margin: 0;
   font-family: theme("fontFamily.sans");
-  background: #041421;
-  color: #d0d6d6;
+  background: var(--pf-950);
+  color: var(--pf-100);
   overflow: hidden;
 }
 
@@ -34,20 +44,28 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #4c7273;
+  background: var(--pf-700);
   border-radius: 8px;
-  border: 2px solid #041421;
+  border: 2px solid var(--pf-950);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #86b9b0;
+  background: var(--pf-400);
 }
 
 /* ----- Reusable component classes ----- */
 @layer components {
   .pf-input {
-    @apply w-full rounded-md border border-teal-800/30 bg-[#042630] px-3 py-2 text-sm
-           text-[#d0d6d6] placeholder-[#4c7273] outline-none transition
-           focus:border-[#86b9b0] focus:ring-1 focus:ring-[#86b9b0]/40;
+    @apply w-full rounded-md border px-3 py-2 text-sm outline-none transition;
+    border-color: var(--pf-border);
+    background: var(--pf-900);
+    color: var(--pf-100);
+  }
+  .pf-input::placeholder {
+    color: var(--pf-700);
+  }
+  .pf-input:focus {
+    border-color: var(--pf-400);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pf-400) 40%, transparent);
   }
 
   .pf-btn {
@@ -56,15 +74,26 @@ body {
   }
 
   .pf-btn-primary {
-    @apply pf-btn bg-[#4c7273] text-white hover:bg-[#86b9b0];
+    @apply pf-btn text-white;
+    background: var(--pf-700);
+  }
+  .pf-btn-primary:hover {
+    background: var(--pf-400);
   }
 
   .pf-btn-ghost {
-    @apply pf-btn text-[#86b9b0] hover:bg-[#042630] hover:text-[#d0d6d6];
+    @apply pf-btn;
+    color: var(--pf-400);
+  }
+  .pf-btn-ghost:hover {
+    background: var(--pf-900);
+    color: var(--pf-100);
   }
 
   .pf-card {
-    @apply rounded-lg border border-teal-800/30 bg-[#042630]/70 shadow-sm;
+    @apply rounded-lg shadow-sm;
+    border: 1px solid var(--pf-border);
+    background: color-mix(in srgb, var(--pf-900) 70%, transparent);
   }
 
   .pf-tag {
@@ -72,23 +101,29 @@ body {
   }
 
   .pf-kbd {
-    @apply inline-flex items-center justify-center rounded border border-teal-800/30
-           bg-[#041421] px-1.5 py-0.5 font-mono text-[10px] text-[#86b9b0];
+    @apply inline-flex items-center justify-center rounded px-1.5 py-0.5 font-mono text-[10px];
+    border: 1px solid var(--pf-border);
+    background: var(--pf-950);
+    color: var(--pf-400);
   }
 }
 
 /* ----- Markdown rendering ----- */
 .pf-markdown {
-  @apply text-sm leading-relaxed text-[#d0d6d6];
+  @apply text-sm leading-relaxed;
+  color: var(--pf-100);
 }
 .pf-markdown h1 {
-  @apply mb-2 mt-4 text-lg font-semibold text-[#d0d6d6];
+  @apply mb-2 mt-4 text-lg font-semibold;
+  color: var(--pf-100);
 }
 .pf-markdown h2 {
-  @apply mb-2 mt-3 text-base font-semibold text-[#d0d6d6];
+  @apply mb-2 mt-3 text-base font-semibold;
+  color: var(--pf-100);
 }
 .pf-markdown h3 {
-  @apply mb-1 mt-2 text-sm font-semibold text-[#d0d6d6];
+  @apply mb-1 mt-2 text-sm font-semibold;
+  color: var(--pf-100);
 }
 .pf-markdown p {
   @apply my-2;
@@ -100,27 +135,39 @@ body {
   @apply my-2 ml-5 list-decimal space-y-1;
 }
 .pf-markdown code {
-  @apply rounded bg-[#041421] px-1 py-0.5 font-mono text-[12px] text-[#d0d6d6];
+  @apply rounded px-1 py-0.5 font-mono text-[12px];
+  background: var(--pf-950);
+  color: var(--pf-100);
 }
 .pf-markdown pre {
-  @apply my-3 overflow-x-auto rounded-lg border border-teal-800/30 bg-[#041421] p-3;
+  @apply my-3 overflow-x-auto rounded-lg p-3;
+  border: 1px solid var(--pf-border);
+  background: var(--pf-950);
 }
 .pf-markdown pre code {
   @apply bg-transparent p-0 text-[12px];
 }
 .pf-markdown blockquote {
-  @apply my-2 border-l-2 border-[#86b9b0]/60 pl-3 text-[#4c7273];
+  @apply my-2 border-l-2 pl-3;
+  border-color: color-mix(in srgb, var(--pf-400) 60%, transparent);
+  color: var(--pf-700);
 }
 .pf-markdown a {
-  @apply text-[#86b9b0] underline underline-offset-2 hover:text-[#4c7273];
+  @apply underline underline-offset-2;
+  color: var(--pf-400);
+}
+.pf-markdown a:hover {
+  color: var(--pf-700);
 }
 .pf-markdown table {
   @apply my-3 w-full border-collapse text-xs;
 }
 .pf-markdown th,
 .pf-markdown td {
-  @apply border border-teal-800/30 px-2 py-1 text-left;
+  @apply px-2 py-1 text-left;
+  border: 1px solid var(--pf-border);
 }
 .pf-markdown hr {
-  @apply my-4 border-teal-800/30;
+  @apply my-4;
+  border-color: var(--pf-border);
 }

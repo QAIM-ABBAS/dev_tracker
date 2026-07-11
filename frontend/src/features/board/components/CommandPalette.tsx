@@ -209,19 +209,19 @@ export function CommandPalette() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-xl overflow-hidden rounded-xl border border-teal-800/30 bg-[#041421] shadow-2xl animate-scale-in"
+        className="w-full max-w-xl overflow-hidden rounded-xl border border-teal-800/30 bg-pf-950 shadow-2xl animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
         <div className="flex items-center gap-2 border-b border-teal-800/30 px-3">
-          <Search size={16} className="text-[#4c7273]" />
+          <Search size={16} className="text-pf-700" />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search…"
-            className="flex-1 bg-transparent py-3 text-sm text-[#d0d6d6] outline-none placeholder-[#4c7273]"
+            className="flex-1 bg-transparent py-3 text-sm text-pf-100 outline-none placeholder-pf-700"
           />
           <kbd className="pf-kbd">Esc</kbd>
         </div>
@@ -229,14 +229,14 @@ export function CommandPalette() {
         {/* Results */}
         <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-2">
           {grouped.length === 0 && (
-            <div className="px-3 py-6 text-center text-sm text-[#4c7273]">
+            <div className="px-3 py-6 text-center text-sm text-pf-700">
               No matching commands.
             </div>
           )}
 
           {grouped.map(([group, groupItems]) => (
             <div key={group} className="mb-1">
-              <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#4c7273]">
+              <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-pf-700">
                 {group}
               </div>
               {groupItems.map((item) => {
@@ -251,10 +251,10 @@ export function CommandPalette() {
                     onClick={() => item.action()}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors",
-                      isActive ? "bg-[#4c7273] text-white" : "text-[#d0d6d6] hover:bg-[#042630]"
+                      isActive ? "bg-pf-700 text-white" : "text-pf-100 hover:bg-pf-900"
                     )}
                   >
-                    <span className={isActive ? "text-white" : "text-[#4c7273]"}>
+                    <span className={isActive ? "text-white" : "text-pf-700"}>
                       {item.icon}
                     </span>
                     <span className="flex-1 truncate">{item.label}</span>
@@ -262,7 +262,7 @@ export function CommandPalette() {
                       <span
                         className={cn(
                           "text-[10px]",
-                          isActive ? "text-white/70" : "text-[#4c7273]"
+                          isActive ? "text-white/70" : "text-pf-700"
                         )}
                       >
                         {item.hint}
@@ -279,7 +279,7 @@ export function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-teal-800/30 px-3 py-2 text-[10px] text-[#4c7273]">
+        <div className="flex items-center justify-between border-t border-teal-800/30 px-3 py-2 text-[10px] text-pf-700">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Square size={9} /> ↑↓ navigate
