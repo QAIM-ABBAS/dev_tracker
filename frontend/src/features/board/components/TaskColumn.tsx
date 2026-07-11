@@ -86,9 +86,23 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         </SortableContext>
 
         {tasks.length === 0 && !adding && (
-          <div className="rounded-lg border border-dashed border-teal-800/30 p-4 text-center text-[11px] text-pf-700">
-            Drop tasks here
-          </div>
+          <button
+            onClick={() => setAdding(true)}
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-teal-800/30 py-2 text-[11px] text-pf-700 hover:border-pf-400/50 hover:text-pf-400 transition-colors"
+          >
+            <Plus size={12} />
+            Add / Drag task here
+          </button>
+        )}
+
+        {tasks.length > 0 && tasks.length < 5 && !adding && (
+          <button
+            onClick={() => setAdding(true)}
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-teal-800/30 py-2 text-[11px] text-pf-700 hover:border-pf-400/50 hover:text-pf-400 transition-colors"
+          >
+            <Plus size={12} />
+            Add / Drag task here
+          </button>
         )}
 
         {/* Quick-add input */}
