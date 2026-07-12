@@ -66,10 +66,16 @@ export default {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        "snap-in": {
+          "0%": { opacity: "0.6", transform: "scale(0.97)" },
+          "50%": { opacity: "1", transform: "scale(1.01)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.18s ease-out",
         "scale-in": "scale-in 0.14s ease-out",
+        "snap-in": "snap-in 0.3s ease-out",
       },
     },
   },
