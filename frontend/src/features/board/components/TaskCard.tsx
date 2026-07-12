@@ -48,6 +48,8 @@ export function TaskCard({ task, status, statuses }: Props) {
     data: { type: "task", task },
   });
 
+  const [justDropped, setJustDropped] = useState(false);
+
   useEffect(() => {
     if (editingTitle && titleInputRef.current) {
       titleInputRef.current.focus();
@@ -55,9 +57,20 @@ export function TaskCard({ task, status, statuses }: Props) {
     }
   }, [editingTitle]);
 
+  useEffect(() => {
+    if (isDragging) {
+      setJustDropped(false);
+      return;
+    }
+    if (justDropped === false && transform === null) return;
+    setJustDropped(true);
+    const timer = setTimeout(() => setJustDropped(false), 300);
+    return () => clearTimeout(timer);
+  }, [isDragging]);
+
   const style = {
     transform: CSS.Translate.toString(transform),
-    transition,
+    transition: transition || "transform 200ms ease, opacity 200ms ease",
     opacity: isDragging ? 0.4 : 1,
   };
 
@@ -92,7 +105,8 @@ export function TaskCard({ task, status, statuses }: Props) {
       style={style}
       className={cn(
         "pf-card group relative cursor-pointer p-2.5 transition-shadow hover:border-pf-700 hover:shadow-md",
-        isDragging && "ring-2 ring-pf-400/50"
+        isDragging && "ring-2 ring-pf-400/50",
+        justDropped && "animate-[snap-in_0.3s_ease-out]"
       )}
       onClick={() => openDetail(task.id)}
     >

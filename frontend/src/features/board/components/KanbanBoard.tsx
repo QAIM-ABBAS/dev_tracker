@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -17,6 +17,7 @@ import { useUIStore } from "@/features/board/store/uiStore";
 import { TaskColumn } from "./TaskColumn";
 import { TaskCard } from "./TaskCard";
 import type { TaskCard as TaskCardType } from "@/types";
+import { PRIORITY_COLORS } from "@/types";
 
 export function KanbanBoard() {
   const { data: statuses, isLoading: statusesLoading } = useStatuses();
@@ -32,6 +33,8 @@ export function KanbanBoard() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   // Filter cards by search query
   const filteredCards = useMemo(() => {
@@ -59,7 +62,12 @@ export function KanbanBoard() {
     return map;
   }, [filteredCards, statuses]);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(String(event.active.id));
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
     const { active, over } = event;
     if (!over) return;
 
@@ -152,7 +160,9 @@ export function KanbanBoard() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveId(null)}
       >
         <div className="flex flex-1 gap-3 overflow-x-auto p-3">
           {statuses.map((status) => (
@@ -166,7 +176,46 @@ export function KanbanBoard() {
         </div>
 
         <DragOverlay>
-          {null}
+          {activeId ? (() => {
+            const task = filteredCards.find((c) => c.id === activeId);
+            if (!task) return null;
+            const status = statuses?.find((s) => s.id === task.status_id);
+            return (
+              <div className="pf-card w-72 p-2.5 shadow-2xl ring-2 ring-pf-400/50 rotate-2 opacity-90">
+                <div
+                  className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r"
+                  style={{ backgroundColor: PRIORITY_COLORS[task.priority] }}
+                />
+                <h4 className="px-1 text-sm font-medium leading-snug text-pf-100">
+                  {task.title}
+                </h4>
+                {task.description && (
+                  <p className="mt-1 line-clamp-2 px-1 text-xs text-pf-700">
+                    {task.description.replace(/[#*`>\-_~]/g, "").slice(0, 120)}
+                  </p>
+                )}
+                {task.tags.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1 px-1">
+                    {task.tags.map((tag) => (
+                      <span
+                        key={tag.id}
+                        className="pf-tag"
+                        style={{ backgroundColor: `${tag.color}22`, color: tag.color }}
+                      >
+                        {tag.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {status && (
+                  <div className="mt-2 flex items-center gap-1 px-1 text-[10px] text-pf-700">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: status.color }} />
+                    {status.name}
+                  </div>
+                )}
+              </div>
+            );
+          })() : null}
         </DragOverlay>
       </DndContext>
     </div>

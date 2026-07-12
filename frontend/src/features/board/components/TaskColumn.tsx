@@ -68,7 +68,7 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         ref={setNodeRef}
         className={cn(
           "flex-1 space-y-2 overflow-y-auto rounded-lg p-1 transition-colors",
-          isOver && "bg-pf-400/5 ring-1 ring-pf-400/30"
+          isOver && "bg-pf-400/5 ring-2 ring-inset ring-pf-400/30"
         )}
       >
         <SortableContext
