@@ -1,11 +1,16 @@
 # syntax=docker/compose
 # --------------------------------------------------------------------------- #
-# ProjectFlow — unified docker-compose for PostgreSQL + FastAPI + React       #
+# ProjectFlow — production docker-compose for PostgreSQL + FastAPI + React    #
 # --------------------------------------------------------------------------- #
-# Bring everything up:        docker compose up --build
-# Tear down (keep volumes):   docker compose down
-# Tear down (wipe data):      docker compose down -v
-# View backend logs:          docker compose logs -f backend
+# Required before first run — create a `.env` file with:                     #
+#   POSTGRES_PASSWORD=<strong-password>                                      #
+#   WEBHOOK_SECRET=<strong-random-secret>                                    #
+# (compose refuses to start without these — no weak defaults in prod)        #
+#                                                                              #
+# Bring everything up:        docker compose up --build -d                   #
+# Tear down (keep volumes):   docker compose down                            #
+# Tear down (wipe data):      docker compose down -v                         #
+# View backend logs:          docker compose logs -f backend                 #
 # --------------------------------------------------------------------------- #
 
 services:
@@ -15,19 +20,34 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-projectflow}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projectflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       POSTGRES_DB: ${POSTGRES_DB:-projectflow}
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # Not published to the host — only the backend needs to reach it, over
+    # the internal db-net below. For local psql access, bind to loopback only
+    # and note db-net is `internal: true`, so also drop that flag if you do:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-projectflow} -d ${POSTGRES_DB:-projectflow}"]
       interval: 5s
       timeout: 5s
       retries: 10
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
-      - projectflow
+      - db-net
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
 
   backend:
     build:
@@ -40,17 +60,32 @@ services:
         condition: service_healthy
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-projectflow}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projectflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       POSTGRES_DB: ${POSTGRES_DB:-projectflow}
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
-      DEBUG: "true"
-      CORS_ORIGINS: '["http://localhost:5173","http://localhost:3000","http://localhost:8080","http://127.0.0.1:5173"]'
-      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-change-me-in-production}
+      DEBUG: ${DEBUG:-false}
+      # Add your production frontend origin(s) here (JSON array string)
+      CORS_ORIGINS: '["http://localhost:5174","http://localhost:3000","http://localhost:8080"]'
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:?WEBHOOK_SECRET must be set in .env}
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-2}
     ports:
-      - "8000:8000"
+      - "8030:8030"
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
-      - projectflow
+      - db-net
+      - public-net
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
 
   frontend:
     build:
@@ -59,15 +94,42 @@ services:
     container_name: projectflow-frontend
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
-      - "3000:80"
+      - "5174:8080"
+    # Hardening: nginx serves everything it needs from these writable mounts;
+    # if the base image's entrypoint scripts complain, drop read_only and
+    # keep the tmpfs mounts.
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
-      - projectflow
+      - public-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
 
 volumes:
   pgdata:
 
 networks:
-  projectflow:
+  # db only lives here — isolated from the outside world
+  db-net:
     driver: bridge
+    internal: true
+  # backend + frontend live here, this one has normal host connectivity
+  public-net:
+    driver: bridge
+  
