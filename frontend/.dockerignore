@@ -52,3 +52,5 @@ Thumbs.db
 # Misc
 *.bak
 *.tmp
+
+tsconfig.tsbuildinfo
