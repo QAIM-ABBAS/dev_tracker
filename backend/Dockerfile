@@ -30,7 +30,7 @@ FROM python:3.12-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH=/home/appuser/.local/bin:$PATH \
+    PATH=/app/.local/bin:$PATH \
     UVICORN_WORKERS=2
 
 WORKDIR /app
@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && groupadd -r appuser \
     && useradd -r -g appuser -d /app -s /usr/sbin/nologin appuser
 
-COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+COPY --from=builder --chown=appuser:appuser /root/.local /app/.local
 COPY --chown=appuser:appuser . .
 
 USER appuser
