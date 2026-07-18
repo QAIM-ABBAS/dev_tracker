@@ -198,14 +198,15 @@ export function TaskDetail() {
                 </h4>
                 <div className="flex flex-wrap gap-1">
                   {tags.map((tag) => {
-                    const selected = task.tags.some((t) => t.id === tag.id);
+                    const selected = (task.tags ?? []).some((t) => t.id === tag.id);
                     return (
                       <button
                         key={tag.id}
                         onClick={() => {
+                          const currentTags = task.tags ?? [];
                           const next = selected
-                            ? task.tags.filter((t) => t.id !== tag.id).map((t) => t.id)
-                            : [...task.tags.map((t) => t.id), tag.id];
+                            ? currentTags.filter((t) => t.id !== tag.id).map((t) => t.id)
+                            : [...currentTags.map((t) => t.id), tag.id];
                           updateTask.mutate({ id: task.id, data: { tag_ids: next } });
                         }}
                         className={cn(
@@ -242,7 +243,7 @@ export function TaskDetail() {
 
             {/* Micro-todos */}
             <div>
-              <MicroTodoList taskId={task.id} todos={task.micro_todos} />
+              <MicroTodoList taskId={task.id} todos={task.micro_todos ?? []} />
             </div>
 
             {/* Notes / comments */}
@@ -253,12 +254,12 @@ export function TaskDetail() {
               </h4>
 
               <div className="space-y-2">
-                {task.notes.length === 0 && (
+                {(task.notes ?? []).length === 0 && (
                   <p className="text-xs text-pf-900">
                     No notes yet. Add context, decisions, or code snippets below.
                   </p>
                 )}
-                {task.notes.map((note) => (
+                {(task.notes ?? []).map((note) => (
                   <div
                     key={note.id}
                     className="group rounded-md border border-teal-800/30 bg-pf-900/60 p-2"

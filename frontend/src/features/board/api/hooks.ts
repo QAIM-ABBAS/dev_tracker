@@ -334,18 +334,19 @@ export function useAddMicroTodo() {
       await qc.cancelQueries({ queryKey: key });
       const prev = qc.getQueryData<Task>(key);
       if (prev) {
+        const existingTodos = prev.micro_todos ?? [];
         const optimistic: MicroTodo = {
           id: `tmp-mt-${Date.now()}`,
           task_id: taskId,
           content,
           completed: false,
-          position: prev.micro_todos.length,
+          position: existingTodos.length,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
         qc.setQueryData<Task>(key, {
           ...prev,
-          micro_todos: [...prev.micro_todos, optimistic],
+          micro_todos: [...existingTodos, optimistic],
         });
       }
       return { prev, key };
@@ -377,7 +378,7 @@ export function useToggleMicroTodo() {
       if (prev) {
         qc.setQueryData<Task>(key, {
           ...prev,
-          micro_todos: prev.micro_todos.map((m) =>
+          micro_todos: (prev.micro_todos ?? []).map((m) =>
             m.id === todo.id ? { ...m, completed } : m
           ),
         });

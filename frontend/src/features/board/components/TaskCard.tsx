@@ -165,9 +165,9 @@ export function TaskCard({ task, status, statuses }: Props) {
       )}
 
       {/* Tags */}
-      {task.tags.length > 0 && (
+      {(task.tags ?? []).length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1 px-1">
-          {task.tags.map((tag) => (
+          {(task.tags ?? []).map((tag) => (
             <span
               key={tag.id}
               className="pf-tag"

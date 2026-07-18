@@ -194,9 +194,9 @@ export function KanbanBoard() {
                     {task.description.replace(/[#*`>\-_~]/g, "").slice(0, 120)}
                   </p>
                 )}
-                {task.tags.length > 0 && (
+                {(task.tags ?? []).length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1 px-1">
-                    {task.tags.map((tag) => (
+                    {(task.tags ?? []).map((tag) => (
                       <span
                         key={tag.id}
                         className="pf-tag"

@@ -18,6 +18,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
   const addTodo = useAddMicroTodo();
   const toggleTodo = useToggleMicroTodo();
   const deleteTodo = useDeleteMicroTodo();
+  const safeTodos = todos ?? [];
 
   const handleAdd = async () => {
     const text = newText.trim();
@@ -26,8 +27,8 @@ export function MicroTodoList({ taskId, todos }: Props) {
     setNewText("");
   };
 
-  const total = todos.length;
-  const done = todos.filter((t) => t.completed).length;
+  const total = safeTodos.length;
+  const done = safeTodos.filter((t) => t.completed).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
@@ -54,7 +55,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
 
       {/* Existing items */}
       <ul className="space-y-1">
-        {todos.map((t) => (
+        {safeTodos.map((t) => (
           <li
             key={t.id}
             className="group flex items-center gap-2 rounded px-1 py-1 hover:bg-pf-900/50"
