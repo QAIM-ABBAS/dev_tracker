@@ -64,6 +64,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-projectflow}
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
+      DATABASE_URL: "postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}"
       DEBUG: ${DEBUG:-false}
       # Add your production frontend origin(s) here (JSON array string)
       CORS_ORIGINS: '["http://localhost:5174","http://localhost:3000","http://localhost:8080"]'
