@@ -23,6 +23,7 @@ import {
   FolderKanban,
   GripVertical,
   MoreHorizontal,
+  Pencil,
   Plus,
   Search,
   Settings,
@@ -129,6 +130,9 @@ export function Sidebar() {
   const [contextMenuProject, setContextMenuProject] = useState<string | null>(null);
   const [statusSubMenu, setStatusSubMenu] = useState(false);
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
 
   useEffect(() => {
     if (!contextMenuProject) {
@@ -169,6 +173,26 @@ export function Sidebar() {
     if (!confirm("Delete this project and all its tasks?")) return;
     await deleteProject.mutateAsync(id);
     if (activeProjectId === id) handleSelect(null);
+  };
+
+  const handleStartEdit = (p: Project) => {
+    setEditingProject(p);
+    setEditName(p.name);
+    setEditDesc(p.description ?? "");
+    setContextMenuProject(null);
+    setMenuPos(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingProject || !editName.trim()) return;
+    await updateProject.mutateAsync({
+      id: editingProject.id,
+      data: { name: editName.trim(), description: editDesc.trim() || null },
+    });
+    if (activeProjectId === editingProject.id) {
+      setActiveProjectObj({ ...editingProject, name: editName.trim(), description: editDesc.trim() || null });
+    }
+    setEditingProject(null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -261,6 +285,47 @@ export function Sidebar() {
             </button>
             <button
               onClick={() => setAddingProject(false)}
+              className="pf-btn-ghost text-xs"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit project form */}
+      {editingProject && !collapsed && (
+        <div className="mx-2 mb-2 rounded-md border border-teal-800/30 bg-pf-900 p-2">
+          <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-pf-700">
+            Edit project
+          </div>
+          <input
+            autoFocus
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            placeholder="Project name"
+            className="pf-input mb-2 text-xs"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveEdit();
+              if (e.key === "Escape") setEditingProject(null);
+            }}
+          />
+          <input
+            value={editDesc}
+            onChange={(e) => setEditDesc(e.target.value)}
+            placeholder="Description (optional)"
+            className="pf-input mb-2 text-xs"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSaveEdit();
+              if (e.key === "Escape") setEditingProject(null);
+            }}
+          />
+          <div className="flex gap-2">
+            <button onClick={handleSaveEdit} className="pf-btn-primary flex-1 text-xs">
+              Save
+            </button>
+            <button
+              onClick={() => setEditingProject(null)}
               className="pf-btn-ghost text-xs"
             >
               Cancel
@@ -414,6 +479,20 @@ export function Sidebar() {
                   ))}
                 </div>
               )}
+
+              {/* Edit */}
+              <div className="border-t border-teal-800/30">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartEdit(p);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-pf-100 hover:bg-pf-950 transition-colors"
+                >
+                  <Pencil size={12} />
+                  Edit
+                </button>
+              </div>
 
               {/* Delete */}
               <div className="border-t border-teal-800/30">
