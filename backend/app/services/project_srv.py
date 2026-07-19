@@ -31,7 +31,9 @@ async def list_projects(db: AsyncSession) -> list[ProjectOut]:
 async def create_project(db: AsyncSession, payload: ProjectCreate) -> ProjectOut:
     # Set position to end of list
     max_pos = await db.scalar(select(func.coalesce(func.max(Project.position), -1)))
-    project = Project(**payload.model_dump(), position=max_pos + 1)
+    data = payload.model_dump()
+    data.pop("position", None)
+    project = Project(**data, position=max_pos + 1)
     db.add(project)
     await db.flush()
     await db.refresh(project)
