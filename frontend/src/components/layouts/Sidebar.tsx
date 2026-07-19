@@ -111,7 +111,8 @@ export function Sidebar() {
   const setCommandOpen = useUIStore((s) => s.setCommandOpen);
   const setSearchQuery = useUIStore((s) => s.setSearchQuery);
 
-  const { data: projects, isLoading } = useProjects();
+  const { data: rawProjects, isLoading } = useProjects();
+  const projects = Array.isArray(rawProjects) ? rawProjects : [];
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
   const updateProject = useUpdateProject();
@@ -172,7 +173,7 @@ export function Sidebar() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id || !projects) return;
+    if (!over || active.id === over.id) return;
 
     const oldIndex = projects.findIndex((p) => p.id === active.id);
     const newIndex = projects.findIndex((p) => p.id === over.id);
@@ -304,7 +305,7 @@ export function Sidebar() {
                   <div className="px-2 py-2 text-xs text-pf-700">Loading…</div>
                 )}
 
-                {!isLoading && projects && (
+                {!isLoading && projects.length > 0 && (
                   <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                     <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
                       {projects.map((p) => (

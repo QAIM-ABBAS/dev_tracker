@@ -20,8 +20,10 @@ import type { TaskCard as TaskCardType } from "@/types";
 import { PRIORITY_COLORS } from "@/types";
 
 export function KanbanBoard() {
-  const { data: statuses, isLoading: statusesLoading } = useStatuses();
-  const { data: cards, isLoading: cardsLoading } = useTaskCards();
+  const { data: rawStatuses, isLoading: statusesLoading } = useStatuses();
+  const { data: rawCards, isLoading: cardsLoading } = useTaskCards();
+  const statuses = Array.isArray(rawStatuses) ? rawStatuses : [];
+  const cards = Array.isArray(rawCards) ? rawCards : [];
   const moveTask = useMoveTask();
   const activeProject = useUIStore((s) => s.activeProject);
   const searchQuery = useUIStore((s) => s.searchQuery);
@@ -38,14 +40,14 @@ export function KanbanBoard() {
 
   // Filter cards by search query
   const filteredCards = useMemo(() => {
-    if (!cards) return [];
+    if (!cards.length) return [];
     if (!searchQuery.trim()) return cards;
     const q = searchQuery.toLowerCase();
     return cards.filter(
       (c) =>
         c.title.toLowerCase().includes(q) ||
         c.description?.toLowerCase().includes(q) ||
-        c.tags.some((t) => t.name.toLowerCase().includes(q))
+        c.tags?.some((t) => t.name.toLowerCase().includes(q))
     );
   }, [cards, searchQuery]);
 
@@ -87,7 +89,7 @@ export function KanbanBoard() {
       destPosition = col.length;
     } else {
       // Dropped over a card — recompute based on over card's position
-      const overTask = (cards ?? []).find((c) => c.id === overId);
+      const overTask = cards.find((c) => c.id === overId);
       if (!overTask) return;
       destStatusId = overTask.status_id;
       const col = grouped.get(destStatusId) ?? [];
@@ -116,7 +118,7 @@ export function KanbanBoard() {
     );
   }
 
-  if (!statuses || statuses.length === 0) {
+  if (statuses.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
@@ -179,7 +181,7 @@ export function KanbanBoard() {
           {activeId ? (() => {
             const task = filteredCards.find((c) => c.id === activeId);
             if (!task) return null;
-            const status = statuses?.find((s) => s.id === task.status_id);
+            const status = statuses.find((s) => s.id === task.status_id);
             return (
               <div className="pf-card w-72 p-2.5 shadow-2xl ring-2 ring-pf-400/50 rotate-2 opacity-90">
                 <div

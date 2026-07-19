@@ -27,9 +27,11 @@ import { MicroTodoList } from "@/components/ui/MicroTodoList";
 export function TaskDetail() {
   const taskId = useUIStore((s) => s.detailTaskId);
   const closeDetail = useUIStore((s) => s.closeDetail);
-  const { data: statuses } = useStatuses();
-  const { data: tags } = useTags();
+  const { data: rawStatuses } = useStatuses();
+  const { data: rawTags } = useTags();
   const { data: task, isLoading } = useTask(taskId);
+  const statuses = Array.isArray(rawStatuses) ? rawStatuses : [];
+  const tags = Array.isArray(rawTags) ? rawTags : [];
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
   const addNote = useAddNote();
