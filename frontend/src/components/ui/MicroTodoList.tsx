@@ -95,7 +95,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
             </span>
             <button
               onClick={() => deleteTodo.mutate(t.id)}
-              className="rounded p-0.5 text-pf-900 opacity-0 hover:text-red-400 group-hover:opacity-100"
+              className="rounded p-0.5 text-pf-700 opacity-0 hover:text-red-400 group-hover:opacity-100"
               title="Delete"
             >
               <X size={12} />

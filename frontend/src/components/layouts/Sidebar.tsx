@@ -528,7 +528,7 @@ export function Sidebar() {
                     setContextMenuProject(null);
                     setMenuPos(null);
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)] hover:text-white transition-colors"
+                  className="flex w-full items-center gap-2 rounded-b-md px-3 py-1.5 text-xs text-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)] hover:text-white transition-colors"
                 >
                   <Trash2 size={12} />
                   Delete

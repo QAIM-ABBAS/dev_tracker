@@ -129,7 +129,7 @@ export function TaskCard({ task, status, statuses }: Props) {
 
       {/* Drag handle */}
       <button
-        className="absolute -left-1 top-1/2 -translate-y-1/2 cursor-grab text-pf-900 opacity-0 hover:text-pf-700 group-hover:opacity-100 active:cursor-grabbing"
+        className="absolute -left-1 top-1/2 -translate-y-1/2 cursor-grab text-pf-700 opacity-0 hover:text-pf-100 group-hover:opacity-100 active:cursor-grabbing"
         {...attributes}
         {...listeners}
         onClick={(e) => e.stopPropagation()}
@@ -244,7 +244,7 @@ export function TaskCard({ task, status, statuses }: Props) {
             e.stopPropagation();
             if (confirm("Delete this task?")) deleteTask.mutate(task.id);
           }}
-          className="rounded p-0.5 text-pf-900 opacity-0 hover:text-red-400 group-hover:opacity-100"
+          className="rounded p-0.5 text-pf-700 opacity-0 hover:text-red-400 group-hover:opacity-100"
           title="Delete task"
         >
           <Trash2 size={11} />

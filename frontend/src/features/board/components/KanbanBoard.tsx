@@ -141,7 +141,7 @@ export function KanbanBoard() {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
-          <KanbanSquare size={32} className="mx-auto mb-2 text-pf-900" />
+          <KanbanSquare size={32} className="mx-auto mb-2 text-pf-700" />
           <p className="text-sm text-pf-700">No statuses defined.</p>
           <p className="text-xs text-pf-muted-fg">
             The backend should seed default statuses on first boot.

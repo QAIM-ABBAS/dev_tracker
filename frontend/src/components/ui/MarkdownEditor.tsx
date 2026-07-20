@@ -92,7 +92,7 @@ export function MarkdownEditor({
             {value}
           </ReactMarkdown>
         ) : (
-          <span className="text-pf-900">No content yet.</span>
+          <span className="text-pf-700">No content yet.</span>
         )}
       </div>
     );
@@ -176,7 +176,7 @@ export function MarkdownEditor({
               {draft}
             </ReactMarkdown>
           ) : (
-            <span className="text-pf-900">Nothing to preview.</span>
+            <span className="text-pf-700">Nothing to preview.</span>
           )}
         </div>
       )}

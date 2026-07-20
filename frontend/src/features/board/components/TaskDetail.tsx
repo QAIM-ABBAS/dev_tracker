@@ -127,7 +127,7 @@ export function TaskDetail() {
               <>
                 <button
                   onClick={handleDelete}
-                  className="rounded px-2 py-1 text-xs text-white bg-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)]/80 transition-colors"
+                  className="rounded px-2 py-1 text-xs text-white bg-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)] transition-colors"
                 >
                   Confirm delete
                 </button>
@@ -141,7 +141,7 @@ export function TaskDetail() {
             ) : (
               <button
                 onClick={handleDelete}
-                className="pf-btn-ghost h-8 px-2 text-xs text-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)]/10"
+                className="pf-btn-ghost h-8 px-2 text-xs text-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)] hover:text-white"
                 title="Delete task"
               >
                 <Trash2 size={13} />
