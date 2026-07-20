@@ -3,8 +3,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Eye, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/store/themeStore";
 
 interface Props {
   value: string;
@@ -29,6 +31,8 @@ export function MarkdownEditor({
   const [draft, setDraft] = useState(value);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const theme = useThemeStore((s) => s.theme);
+  const codeStyle = theme === "dark" ? vscDarkPlus : oneLight;
 
   useEffect(() => {
     if (value !== draft) setDraft(value);
@@ -75,7 +79,7 @@ export function MarkdownEditor({
                 return (
                   <SyntaxHighlighter
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    style={vscDarkPlus as any}
+                    style={codeStyle as any}
                     language={match?.[1] ?? "text"}
                     PreTag="div"
                   >
@@ -95,9 +99,9 @@ export function MarkdownEditor({
   }
 
   return (
-    <div className="rounded-md border border-teal-800/30 bg-pf-900/60">
+    <div className="rounded-md border border-pf-border bg-pf-900/60">
       {/* Toolbar */}
-      <div className="flex items-center justify-between border-b border-teal-800/30 px-2 py-1">
+      <div className="flex items-center justify-between border-b border-pf-border px-2 py-1">
         <div className="flex gap-1">
           <button
             onClick={() => setMode("edit")}
@@ -124,7 +128,7 @@ export function MarkdownEditor({
             Preview
           </button>
         </div>
-        <span className="text-[10px] text-pf-900">
+        <span className="text-[10px] text-pf-700">
           {mode === "edit" ? "Markdown supported · auto-saves" : ""}
         </span>
       </div>
@@ -159,7 +163,7 @@ export function MarkdownEditor({
                   return (
                     <SyntaxHighlighter
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      style={vscDarkPlus as any}
+                      style={codeStyle as any}
                       language={match?.[1] ?? "text"}
                       PreTag="div"
                     >

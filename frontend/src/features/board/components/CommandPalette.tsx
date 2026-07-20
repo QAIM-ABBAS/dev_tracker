@@ -3,13 +3,16 @@ import {
   CheckSquare,
   CornerDownLeft,
   FolderPlus,
+  Moon,
   Plus,
   Search,
   Square,
+  Sun,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/features/board/store/uiStore";
+import { useThemeStore } from "@/store/themeStore";
 import {
   useCreateProject,
   useCreateTask,
@@ -33,10 +36,15 @@ export function CommandPalette() {
   const setActiveProject = useUIStore((s) => s.setActiveProject);
   const setActiveProjectObj = useUIStore((s) => s.setActiveProjectObj);
   const activeProjectId = useUIStore((s) => s.activeProjectId);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   const [query, setQuery] = useState("");
   const [activeIdx, setActiveIdx] = useState(0);
+  const [inlineInput, setInlineInput] = useState<{ type: "task" | "project"; statusId?: string } | null>(null);
+  const [inlineValue, setInlineValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const inlineRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const { data: projects } = useProjects();
@@ -49,9 +57,17 @@ export function CommandPalette() {
     if (open) {
       setQuery("");
       setActiveIdx(0);
+      setInlineInput(null);
+      setInlineValue("");
       setTimeout(() => inputRef.current?.focus(), 30);
     }
   }, [open]);
+
+  useEffect(() => {
+    if (inlineInput) {
+      setTimeout(() => inlineRef.current?.focus(), 30);
+    }
+  }, [inlineInput]);
 
   const items = useMemo<CommandItem[]>(() => {
     const out: CommandItem[] = [];
@@ -65,16 +81,9 @@ export function CommandPalette() {
           hint: "creates a task in this status",
           icon: <Plus size={14} />,
           group: "Create task",
-          action: async () => {
-            const title = prompt(`Task title for "${s.name}":`);
-            if (!title) return;
-            const t = await createTask.mutateAsync({
-              project_id: activeProjectId,
-              title,
-              status_id: s.id,
-            });
-            setOpen(false);
-            return t;
+          action: () => {
+            setInlineInput({ type: "task", statusId: s.id });
+            setInlineValue("");
           },
         });
       }
@@ -86,7 +95,7 @@ export function CommandPalette() {
         icon: <Plus size={14} />,
         group: "Create task",
         action: () => {
-          alert("Please select a project in the sidebar first.");
+          // no-op, just shows the hint
         },
       });
     }
@@ -111,19 +120,12 @@ export function CommandPalette() {
     out.push({
       id: "new-project",
       label: "Create new project…",
-      hint: "opens an inline prompt",
+      hint: "type a name below",
       icon: <FolderPlus size={14} />,
       group: "Create",
-      action: async () => {
-        const name = prompt("Project name:");
-        if (!name) return;
-        const p = await createProject.mutateAsync({
-          name,
-          color: "#86b9b0",
-        });
-        setActiveProject(p.id);
-        setActiveProjectObj(p);
-        setOpen(false);
+      action: () => {
+        setInlineInput({ type: "project" });
+        setInlineValue("");
       },
     });
 
@@ -141,17 +143,32 @@ export function CommandPalette() {
       }
     }
 
+    // Theme toggle
+    out.push({
+      id: "toggle-theme",
+      label: theme === "dark" ? "Switch to light mode" : "Switch to dark mode",
+      hint: "toggle theme",
+      icon: theme === "dark" ? <Sun size={14} /> : <Moon size={14} />,
+      group: "Settings",
+      action: () => {
+        toggleTheme();
+        setOpen(false);
+      },
+    });
+
     return out;
   }, [
     activeProjectId,
     statuses,
     projects,
     tags,
+    theme,
     createTask,
     createProject,
     setActiveProject,
     setActiveProjectObj,
     setOpen,
+    toggleTheme,
   ]);
 
   const filtered = useMemo(() => {
@@ -205,15 +222,18 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 pt-[15vh] animate-fade-in"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 pt-[15vh] motion-safe:animate-fade-in"
       onClick={() => setOpen(false)}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
     >
       <div
-        className="w-full max-w-xl overflow-hidden rounded-xl border border-teal-800/30 bg-pf-950 shadow-2xl animate-scale-in"
+        className="w-full max-w-xl overflow-hidden rounded-xl border border-pf-border bg-pf-950 shadow-2xl motion-safe:animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input */}
-        <div className="flex items-center gap-2 border-b border-teal-800/30 px-3">
+        <div className="flex items-center gap-2 border-b border-pf-border px-3">
           <Search size={16} className="text-pf-700" />
           <input
             ref={inputRef}
@@ -225,6 +245,57 @@ export function CommandPalette() {
           />
           <kbd className="pf-kbd">Esc</kbd>
         </div>
+
+        {/* Inline input for task/project creation */}
+        {inlineInput && (
+          <div className="border-b border-pf-border bg-pf-surface px-3 py-2">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-pf-muted-fg">
+              {inlineInput.type === "task" ? "New task title" : "Project name"}
+            </div>
+            <div className="flex gap-2">
+              <input
+                ref={inlineRef}
+                value={inlineValue}
+                onChange={(e) => setInlineValue(e.target.value)}
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter" && inlineValue.trim()) {
+                    if (inlineInput.type === "task" && inlineInput.statusId && activeProjectId) {
+                      await createTask.mutateAsync({
+                        project_id: activeProjectId,
+                        title: inlineValue.trim(),
+                        status_id: inlineInput.statusId,
+                      });
+                      setOpen(false);
+                    } else if (inlineInput.type === "project") {
+                      const p = await createProject.mutateAsync({
+                        name: inlineValue.trim(),
+                        color: "#3B82F6",
+                      });
+                      setActiveProject(p.id);
+                      setActiveProjectObj(p);
+                      setOpen(false);
+                    }
+                  }
+                  if (e.key === "Escape") {
+                    setInlineInput(null);
+                    setInlineValue("");
+                  }
+                }}
+                placeholder={inlineInput.type === "task" ? "Task title…" : "Project name…"}
+                className="flex-1 rounded-md border border-pf-border bg-pf-950 px-2 py-1.5 text-sm text-pf-100 outline-none focus:border-pf-400 placeholder-pf-700"
+              />
+              <button
+                onClick={() => {
+                  setInlineInput(null);
+                  setInlineValue("");
+                }}
+                className="pf-btn-ghost text-xs"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Results */}
         <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-2">
@@ -251,7 +322,7 @@ export function CommandPalette() {
                     onClick={() => item.action()}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors",
-                      isActive ? "bg-pf-700 text-white" : "text-pf-100 hover:bg-pf-900"
+                      isActive ? "bg-pf-400 text-white" : "text-pf-100 hover:bg-pf-surface"
                     )}
                   >
                     <span className={isActive ? "text-white" : "text-pf-700"}>
@@ -279,7 +350,7 @@ export function CommandPalette() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-teal-800/30 px-3 py-2 text-[10px] text-pf-700">
+        <div className="flex items-center justify-between border-t border-pf-border px-3 py-2 text-[10px] text-pf-700">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
               <Square size={9} /> ↑↓ navigate

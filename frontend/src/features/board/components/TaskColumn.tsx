@@ -51,7 +51,7 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         <h3 className="flex-1 text-xs font-semibold uppercase tracking-wider text-pf-400">
           {status.name}
         </h3>
-        <span className="rounded-full bg-pf-900 px-1.5 py-0.5 text-[10px] text-pf-700">
+        <span className="rounded-full bg-pf-950 px-1.5 py-0.5 text-[10px] text-pf-muted-fg">
           {tasks.length}
         </span>
         <button
@@ -88,7 +88,7 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         {tasks.length === 0 && !adding && (
           <button
             onClick={() => setAdding(true)}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-teal-800/30 py-2 text-[11px] text-pf-700 hover:border-pf-400/50 hover:text-pf-400 transition-colors"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-pf-border py-2 text-[11px] text-pf-700 hover:border-pf-400/50 hover:text-pf-400 transition-colors"
           >
             <Plus size={12} />
             Add / Drag task here
@@ -98,7 +98,7 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
         {tasks.length > 0 && tasks.length < 5 && !adding && (
           <button
             onClick={() => setAdding(true)}
-            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-teal-800/30 py-2 text-[11px] text-pf-700 hover:border-pf-400/50 hover:text-pf-400 transition-colors"
+            className="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-pf-border py-2 text-[11px] text-pf-700 hover:border-pf-400/50 hover:text-pf-400 transition-colors"
           >
             <Plus size={12} />
             Add / Drag task here
@@ -107,7 +107,7 @@ export function TaskColumn({ status, tasks, statuses }: Props) {
 
         {/* Quick-add input */}
         {adding && (
-          <div className="rounded-lg border border-teal-800/30 bg-pf-900 p-2 animate-scale-in">
+          <div className="rounded-lg border border-pf-border bg-pf-900 p-2 motion-safe:animate-scale-in">
             <textarea
               autoFocus
               value={title}

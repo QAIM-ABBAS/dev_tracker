@@ -112,8 +112,27 @@ export function KanbanBoard() {
 
   if (statusesLoading || cardsLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="animate-pulse text-sm text-pf-700">Loading board…</div>
+      <div className="flex h-full flex-col">
+        <div className="flex h-14 items-center border-b border-pf-border px-4">
+          <div className="h-4 w-32 animate-pulse rounded bg-pf-surface" />
+        </div>
+        <div className="flex flex-1 gap-3 overflow-x-auto p-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="w-72 shrink-0 space-y-2">
+              <div className="mb-2 flex items-center gap-2 px-1">
+                <div className="h-2 w-2 animate-pulse rounded-full bg-pf-surface" />
+                <div className="h-3 w-16 animate-pulse rounded bg-pf-surface" />
+              </div>
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="pf-card animate-pulse p-2.5">
+                  <div className="h-4 w-3/4 rounded bg-pf-950" />
+                  <div className="mt-2 h-3 w-full rounded bg-pf-950" />
+                  <div className="mt-1 h-3 w-2/3 rounded bg-pf-950" />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -124,7 +143,7 @@ export function KanbanBoard() {
         <div className="text-center">
           <KanbanSquare size={32} className="mx-auto mb-2 text-pf-900" />
           <p className="text-sm text-pf-700">No statuses defined.</p>
-          <p className="text-xs text-pf-700">
+          <p className="text-xs text-pf-muted-fg">
             The backend should seed default statuses on first boot.
           </p>
         </div>
@@ -135,7 +154,7 @@ export function KanbanBoard() {
   return (
     <div className="flex h-full flex-col">
       {/* Board header */}
-      <div className="flex h-14 items-center gap-3 border-b border-teal-800/30 px-4">
+      <div className="flex h-14 items-center gap-3 border-b border-pf-border px-4">
         <h2 className="text-sm font-semibold text-pf-100">
           {activeProject ? activeProject.name : "All Projects"}
         </h2>

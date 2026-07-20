@@ -22,16 +22,19 @@ import {
   ChevronRight,
   FolderKanban,
   GripVertical,
+  Moon,
   MoreHorizontal,
   Pencil,
   Plus,
   Search,
   Settings,
+  Sun,
   Trash2,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/features/board/store/uiStore";
+import { useThemeStore } from "@/store/themeStore";
 import {
   useCreateProject,
   useDeleteProject,
@@ -111,6 +114,8 @@ export function Sidebar() {
   const setActiveProjectObj = useUIStore((s) => s.setActiveProjectObj);
   const setCommandOpen = useUIStore((s) => s.setCommandOpen);
   const setSearchQuery = useUIStore((s) => s.setSearchQuery);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   const { data: rawProjects, isLoading } = useProjects();
   const projects = Array.isArray(rawProjects) ? rawProjects : [];
@@ -208,13 +213,13 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-teal-800/30 bg-pf-950 transition-all duration-200",
+        "flex h-full flex-col border-r border-pf-border bg-pf-950 transition-all duration-200",
         collapsed ? "w-14" : "w-64"
       )}
     >
       {/* Brand */}
-      <div className="flex h-14 items-center gap-2 border-b border-teal-800/30 px-3">
-        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-pf-700 text-white">
+      <div className="flex h-14 items-center gap-2 border-b border-pf-border px-3">
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-pf-400 text-white">
           <Zap size={16} strokeWidth={2.5} />
         </div>
         {!collapsed && (
@@ -257,7 +262,7 @@ export function Sidebar() {
 
       {/* New project form */}
       {addingProject && !collapsed && (
-        <div className="mx-2 mb-2 rounded-md border border-teal-800/30 bg-pf-900 p-2">
+        <div className="mx-2 mb-2 rounded-md border border-pf-border bg-pf-900 p-2">
           <input
             autoFocus
             value={newName}
@@ -295,7 +300,7 @@ export function Sidebar() {
 
       {/* Edit project form */}
       {editingProject && !collapsed && (
-        <div className="mx-2 mb-2 rounded-md border border-teal-800/30 bg-pf-900 p-2">
+        <div className="mx-2 mb-2 rounded-md border border-pf-border bg-pf-900 p-2">
           <div className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-pf-700">
             Edit project
           </div>
@@ -365,7 +370,7 @@ export function Sidebar() {
             )}
           >
             <div className="overflow-hidden min-h-0">
-              <div className="border-l border-pf-700/30 ml-5 pl-2">
+              <div className="border-l border-pf-border ml-5 pl-2">
                 {isLoading && (
                   <div className="px-2 py-2 text-xs text-pf-700">Loading…</div>
                 )}
@@ -424,11 +429,31 @@ export function Sidebar() {
 
       {/* Footer */}
       {!collapsed && (
-        <div className="border-t border-teal-800/30 p-3 text-[10px] text-pf-700">
-          <div className="flex items-center gap-2">
-            <Settings size={11} />
-            <span>v1.0.0 · FastAPI + React</span>
+        <div className="border-t border-pf-border p-3 text-[10px] text-pf-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Settings size={11} />
+              <span>v1.0.0</span>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="pf-btn-ghost h-7 w-7 p-0"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+            </button>
           </div>
+        </div>
+      )}
+      {collapsed && (
+        <div className="flex justify-center border-t border-pf-border p-2">
+          <button
+            onClick={toggleTheme}
+            className="pf-btn-ghost h-7 w-7 p-0"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
         </div>
       )}
 
@@ -439,7 +464,7 @@ export function Sidebar() {
           if (!p) return null;
           return (
             <div
-              className="fixed z-50 w-44 rounded-md border border-teal-800/30 bg-pf-900 shadow-xl"
+              className="fixed z-50 w-44 rounded-md border border-pf-border bg-pf-900 shadow-xl"
               style={{ left: menuPos.x + 4, top: menuPos.y }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -457,7 +482,7 @@ export function Sidebar() {
 
               {/* Status submenu */}
               {statusSubMenu && (
-                <div className="border-t border-teal-800/30">
+                <div className="border-t border-pf-border">
                   {PROJECT_STATUSES.map((s) => (
                     <button
                       key={s.name}
@@ -481,7 +506,7 @@ export function Sidebar() {
               )}
 
               {/* Edit */}
-              <div className="border-t border-teal-800/30">
+              <div className="border-t border-pf-border">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -495,7 +520,7 @@ export function Sidebar() {
               </div>
 
               {/* Delete */}
-              <div className="border-t border-teal-800/30">
+              <div className="border-t border-pf-border">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -503,7 +528,7 @@ export function Sidebar() {
                     setContextMenuProject(null);
                     setMenuPos(null);
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-[#f50505] hover:bg-[#f73434] hover:text-white transition-colors"
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)] hover:text-white transition-colors"
                 >
                   <Trash2 size={12} />
                   Delete

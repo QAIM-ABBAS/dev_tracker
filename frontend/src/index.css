@@ -3,15 +3,35 @@
 @tailwind utilities;
 
 :root {
-  /* === Design Tokens === */
-  --pf-950: #ebebeb;
-  --pf-900: #e1e2e6;
-  --pf-700: #408175;
-  --pf-400: #2E4540;
-  --pf-100: #000000;
+  /* === Light Theme Tokens (default) === */
+  --pf-950: #F8FAFC;
+  --pf-900: #FFFFFF;
+  --pf-700: #64748B;
+  --pf-400: #2563EB;
+  --pf-100: #0F172A;
 
-  /* Border (30% opacity of pf-700) */
-  --pf-border: rgba(76, 114, 115, 0.3);
+  /* Extended tokens */
+  --pf-surface: #F1F5F9;
+  --pf-muted-fg: #94A3B8;
+  --pf-border: #E2E8F0;
+  --pf-destructive: #DC2626;
+
+  color-scheme: light;
+}
+
+.dark {
+  /* === Dark Theme Tokens === */
+  --pf-950: #020617;
+  --pf-900: #0F172A;
+  --pf-700: #64748B;
+  --pf-400: #3B82F6;
+  --pf-100: #F8FAFC;
+
+  /* Extended tokens */
+  --pf-surface: #1E293B;
+  --pf-muted-fg: #94A3B8;
+  --pf-border: #334155;
+  --pf-destructive: #EF4444;
 
   color-scheme: dark;
 }
@@ -33,6 +53,7 @@ body {
   background: var(--pf-950);
   color: var(--pf-100);
   overflow: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* ----- Scrollbar ----- */
@@ -49,15 +70,15 @@ body {
   border: 2px solid var(--pf-950);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--pf-400);
+  background: var(--pf-muted-fg);
 }
 
 /* ----- Reusable component classes ----- */
 @layer components {
   .pf-input {
-    @apply w-full rounded-md border px-3 py-2 text-sm outline-none transition;
+    @apply w-full rounded-md border px-3 py-2 text-sm outline-none transition-colors;
     border-color: var(--pf-border);
-    background: var(--pf-900);
+    background: var(--pf-surface);
     color: var(--pf-100);
   }
   .pf-input::placeholder {
@@ -65,35 +86,40 @@ body {
   }
   .pf-input:focus {
     border-color: var(--pf-400);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--pf-400) 40%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--pf-400) 30%, transparent);
   }
 
   .pf-btn {
     @apply inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium
            transition-colors disabled:cursor-not-allowed disabled:opacity-50;
   }
+  .pf-btn:focus-visible {
+    outline: 2px solid var(--pf-400);
+    outline-offset: 2px;
+  }
 
   .pf-btn-primary {
     @apply pf-btn text-white;
-    background: var(--pf-700);
+    background: var(--pf-400);
   }
   .pf-btn-primary:hover {
-    background: var(--pf-400);
+    background: color-mix(in srgb, var(--pf-400) 85%, white);
   }
 
   .pf-btn-ghost {
     @apply pf-btn;
-    color: var(--pf-400);
+    color: var(--pf-muted-fg);
   }
   .pf-btn-ghost:hover {
-    background: var(--pf-900);
+    background: var(--pf-surface);
     color: var(--pf-100);
   }
 
   .pf-card {
     @apply rounded-lg shadow-sm;
     border: 1px solid var(--pf-border);
-    background: color-mix(in srgb, var(--pf-900) 70%, transparent);
+    background: var(--pf-surface);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 
   .pf-tag {
@@ -104,7 +130,7 @@ body {
     @apply inline-flex items-center justify-center rounded px-1.5 py-0.5 font-mono text-[10px];
     border: 1px solid var(--pf-border);
     background: var(--pf-950);
-    color: var(--pf-400);
+    color: var(--pf-700);
   }
 }
 
@@ -137,7 +163,7 @@ body {
 .pf-markdown code {
   @apply rounded px-1 py-0.5 font-mono text-[12px];
   background: var(--pf-950);
-  color: var(--pf-100);
+  color: var(--pf-muted-fg);
 }
 .pf-markdown pre {
   @apply my-3 overflow-x-auto rounded-lg p-3;
@@ -149,15 +175,15 @@ body {
 }
 .pf-markdown blockquote {
   @apply my-2 border-l-2 pl-3;
-  border-color: color-mix(in srgb, var(--pf-400) 60%, transparent);
-  color: var(--pf-700);
+  border-color: var(--pf-400);
+  color: var(--pf-muted-fg);
 }
 .pf-markdown a {
   @apply underline underline-offset-2;
   color: var(--pf-400);
 }
 .pf-markdown a:hover {
-  color: var(--pf-700);
+  color: color-mix(in srgb, var(--pf-400) 80%, white);
 }
 .pf-markdown table {
   @apply my-3 w-full border-collapse text-xs;

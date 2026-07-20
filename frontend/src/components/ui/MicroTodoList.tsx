@@ -39,7 +39,7 @@ export function MicroTodoList({ taskId, todos }: Props) {
           Checklist
         </h4>
         {total > 0 && (
-          <span className="text-[10px] text-pf-700">
+          <span className="text-[10px] text-pf-muted-fg">
             {done}/{total} · {pct}%
           </span>
         )}
@@ -58,21 +58,21 @@ export function MicroTodoList({ taskId, todos }: Props) {
         {safeTodos.map((t) => (
           <li
             key={t.id}
-            className="group flex items-center gap-2 rounded px-1 py-1 hover:bg-pf-900/50"
+            className="group flex items-center gap-2 rounded px-1 py-1.5 hover:bg-pf-900/50"
           >
             <button
               onClick={() =>
                 toggleTodo.mutate({ todo: t, completed: !t.completed })
               }
               className={cn(
-                "grid h-4 w-4 shrink-0 place-items-center rounded border transition",
+                "grid h-5 w-5 shrink-0 place-items-center rounded border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pf-400 focus-visible:ring-offset-1 focus-visible:ring-offset-pf-950",
                 t.completed
                   ? "border-pf-400 bg-pf-400 text-white"
-                  : "border-pf-900 hover:border-pf-700"
+                  : "border-pf-700 hover:border-pf-400"
               )}
             >
               {t.completed && (
-                <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none">
+                <svg viewBox="0 0 12 12" className="h-3.5 w-3.5" fill="none">
                   <path
                     d="M2 6l3 3 5-6"
                     stroke="currentColor"

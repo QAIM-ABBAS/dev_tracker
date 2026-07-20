@@ -43,9 +43,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-pf-950">
-      <div className="w-full max-w-md rounded-lg border border-teal-800/30 bg-pf-900 p-8">
+      <div className="w-full max-w-md rounded-lg border border-pf-border bg-pf-900 p-8">
         <div className="mb-8 flex flex-col items-center">
-          <div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-pf-700 text-white">
+          <div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-pf-400 text-white">
             <Zap size={24} strokeWidth={2.5} />
           </div>
           <h1 className="text-xl font-semibold text-pf-100">ProjectFlow</h1>
@@ -57,7 +57,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {isRegister && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-pf-400">
+              <label className="mb-1 block text-xs font-medium text-pf-muted-fg">
                 Email
               </label>
               <input
@@ -71,7 +71,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-pf-400">
+            <label className="mb-1 block text-xs font-medium text-pf-muted-fg">
               Username
             </label>
             <input
@@ -84,7 +84,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-pf-400">
+            <label className="mb-1 block text-xs font-medium text-pf-muted-fg">
               Password
             </label>
             <input
@@ -98,7 +98,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="rounded-md bg-red-500/10 p-3 text-sm text-red-400">
+            <div className="rounded-md bg-[var(--pf-destructive)]/10 p-3 text-sm text-[var(--pf-destructive)]" role="alert" aria-live="polite">
               {error}
             </div>
           )}
@@ -108,7 +108,15 @@ export default function LoginPage() {
             disabled={loading}
             className="pf-btn-primary w-full"
           >
-            {loading ? "Loading..." : isRegister ? "Register" : "Sign In"}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Loading…
+              </span>
+            ) : isRegister ? "Register" : "Sign In"}
           </button>
         </form>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
@@ -40,10 +40,30 @@ export function TaskDetail() {
 
   const [newNote, setNewNote] = useState("");
   const [title, setTitle] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (task) setTitle(task.title);
   }, [task?.id]);
+
+  // Auto-focus title on open
+  useEffect(() => {
+    if (taskId && !isLoading) {
+      setTimeout(() => titleRef.current?.focus(), 100);
+    }
+  }, [taskId, isLoading]);
+
+  // Escape key to close
+  useEffect(() => {
+    if (!taskId) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [taskId]);
 
   if (!taskId) return null;
 
@@ -70,7 +90,10 @@ export function TaskDetail() {
 
   const handleDelete = async () => {
     if (!task) return;
-    if (!confirm("Delete this task permanently?")) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     await deleteTask.mutateAsync(task.id);
     closeDetail();
   };
@@ -83,27 +106,48 @@ export function TaskDetail() {
 
   return (
     <div
-      className="fixed inset-0 z-40 flex justify-end bg-black/40 animate-fade-in"
+      className="fixed inset-0 z-40 flex justify-end bg-black/40 motion-safe:animate-fade-in"
       onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Task detail"
     >
       <div
-        className="flex h-full w-full max-w-xl flex-col border-l border-teal-800/30 bg-pf-950 shadow-2xl animate-scale-in"
+        ref={panelRef}
+        className="flex h-full w-full max-w-xl flex-col border-l border-pf-border bg-pf-950 shadow-2xl motion-safe:animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex h-14 items-center gap-2 border-b border-teal-800/30 px-4">
-          <span className="text-xs font-semibold uppercase tracking-wider text-pf-700">
+        <div className="flex h-14 items-center gap-2 border-b border-pf-border px-4">
+          <span className="text-xs font-semibold uppercase tracking-wider text-pf-muted-fg">
             Task detail
           </span>
           <div className="ml-auto flex items-center gap-1">
-            <button
-              onClick={handleDelete}
-              className="pf-btn-ghost h-8 px-2 text-xs text-red-400 hover:bg-red-500/10"
-              title="Delete task"
-            >
-              <Trash2 size={13} />
-              Delete
-            </button>
+            {confirmDelete ? (
+              <>
+                <button
+                  onClick={handleDelete}
+                  className="rounded px-2 py-1 text-xs text-white bg-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)]/80 transition-colors"
+                >
+                  Confirm delete
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="pf-btn-ghost h-8 px-2 text-xs"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleDelete}
+                className="pf-btn-ghost h-8 px-2 text-xs text-[var(--pf-destructive)] hover:bg-[var(--pf-destructive)]/10"
+                title="Delete task"
+              >
+                <Trash2 size={13} />
+                Delete
+              </button>
+            )}
             <button
               onClick={handleClose}
               className="pf-btn-ghost h-8 w-8 p-0"
@@ -122,6 +166,7 @@ export function TaskDetail() {
           <div className="flex-1 space-y-5 overflow-y-auto p-4">
             {/* Title */}
             <input
+              ref={titleRef}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={handleSaveTitle}
@@ -135,12 +180,12 @@ export function TaskDetail() {
             {/* Meta row: status + priority + due date */}
             <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-xs">
-                <span className="text-pf-700">Status</span>
+                <span className="text-pf-muted-fg">Status</span>
                 <div className="relative">
                   <select
                     value={task.status_id}
                     onChange={(e) => handleStatusChange(e.target.value)}
-                    className="appearance-none rounded-md border border-teal-800/30 bg-pf-900 py-1 pl-2 pr-7 text-xs text-pf-100 outline-none focus:border-pf-400"
+                    className="appearance-none rounded-md border border-pf-border bg-pf-900 py-1 pl-2 pr-7 text-xs text-pf-100 outline-none focus:border-pf-400"
                   >
                     {statuses?.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -156,7 +201,7 @@ export function TaskDetail() {
               </label>
 
               <label className="flex items-center gap-2 text-xs">
-                <span className="text-pf-700">Priority</span>
+                <span className="text-pf-muted-fg">Priority</span>
                 <div className="flex gap-0.5">
                   {PRIORITY_LABELS.map((label, i) => (
                     <button
@@ -166,7 +211,7 @@ export function TaskDetail() {
                         "rounded px-1.5 py-0.5 text-[10px] font-medium transition",
                         task.priority === i
                           ? "text-white"
-                          : "text-pf-700 hover:text-pf-400"
+                          : "text-pf-muted-fg hover:text-pf-100"
                       )}
                       style={{
                         backgroundColor:
@@ -181,13 +226,13 @@ export function TaskDetail() {
               </label>
 
               {task.due_date && (
-                <span className="inline-flex items-center gap-1 text-xs text-pf-700">
+                <span className="inline-flex items-center gap-1 text-xs text-pf-muted-fg">
                   <Calendar size={12} />
                   Due {formatDateTime(task.due_date)}
                 </span>
               )}
 
-              <span className="ml-auto text-[10px] text-pf-900">
+              <span className="ml-auto text-[10px] text-pf-700">
                 Created {timeAgo(task.created_at)} · Updated {timeAgo(task.updated_at)}
               </span>
             </div>
@@ -195,7 +240,7 @@ export function TaskDetail() {
             {/* Tags */}
             {tags && tags.length > 0 && (
               <div>
-                <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-pf-700">
+                <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-pf-muted-fg">
                   Tags
                 </h4>
                 <div className="flex flex-wrap gap-1">
@@ -230,7 +275,7 @@ export function TaskDetail() {
 
             {/* Description (markdown) */}
             <div>
-              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-pf-700">
+              <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-pf-muted-fg">
                 Description
               </h4>
               <MarkdownEditor
@@ -250,21 +295,21 @@ export function TaskDetail() {
 
             {/* Notes / comments */}
             <div>
-              <h4 className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-pf-700">
+              <h4 className="mb-2 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-pf-muted-fg">
                 <MessageSquare size={12} />
                 Notes & Comments
               </h4>
 
               <div className="space-y-2">
                 {(task.notes ?? []).length === 0 && (
-                  <p className="text-xs text-pf-900">
+                  <p className="text-xs text-pf-700">
                     No notes yet. Add context, decisions, or code snippets below.
                   </p>
                 )}
                 {(task.notes ?? []).map((note) => (
                   <div
                     key={note.id}
-                    className="group rounded-md border border-teal-800/30 bg-pf-900/60 p-2"
+                    className="group rounded-md border border-pf-border bg-pf-900/60 p-2"
                   >
                     <div className="mb-1 flex items-center justify-between text-[10px] text-pf-700">
                       <span>{timeAgo(note.created_at)}</span>
@@ -289,7 +334,7 @@ export function TaskDetail() {
               </div>
 
               {/* Quick add note */}
-              <div className="mt-2 rounded-md border border-teal-800/30 bg-pf-900/60 p-2">
+              <div className="mt-2 rounded-md border border-pf-border bg-pf-900/60 p-2">
                 <textarea
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}

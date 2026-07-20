@@ -104,11 +104,22 @@ export function TaskCard({ task, status, statuses }: Props) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "pf-card group relative cursor-pointer p-2.5 transition-shadow hover:border-pf-700 hover:shadow-md",
+        "pf-card group relative cursor-pointer p-2.5 transition-all duration-150",
+        "hover:border-pf-400/50 hover:shadow-md",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pf-400 focus-visible:ring-offset-2 focus-visible:ring-offset-pf-950",
         isDragging && "ring-2 ring-pf-400/50",
-        justDropped && "animate-[snap-in_0.3s_ease-out]"
+        justDropped && "motion-safe:animate-[snap-in_0.3s_ease-out]"
       )}
       onClick={() => openDetail(task.id)}
+      tabIndex={0}
+      role="button"
+      aria-label={`Task: ${task.title}`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openDetail(task.id);
+        }
+      }}
     >
       {/* Priority bar (left edge) */}
       <div
@@ -159,7 +170,7 @@ export function TaskCard({ task, status, statuses }: Props) {
 
       {/* Description preview */}
       {task.description && (
-        <p className="mt-1 line-clamp-2 px-1 text-xs text-pf-700">
+        <p className="mt-1 line-clamp-2 px-1 text-xs text-pf-muted-fg">
           {task.description.replace(/[#*`>\-_~]/g, "").slice(0, 120)}
         </p>
       )}
@@ -185,7 +196,7 @@ export function TaskCard({ task, status, statuses }: Props) {
       {/* Micro-todo progress */}
       {microProgress !== null && (
         <div className="mt-2 px-1">
-          <div className="flex items-center gap-1.5 text-[10px] text-pf-700">
+          <div className="flex items-center gap-1.5 text-[10px] text-pf-muted-fg">
             <CheckSquare size={11} />
             <span>
               {task.micro_todo_done}/{task.micro_todo_total}
@@ -203,7 +214,7 @@ export function TaskCard({ task, status, statuses }: Props) {
       {/* Footer: due date, quick status select, delete */}
       <div className="mt-2 flex items-center gap-1 px-1">
         {task.due_date && (
-          <span className="inline-flex items-center gap-1 text-[10px] text-pf-700">
+          <span className="inline-flex items-center gap-1 text-[10px] text-pf-muted-fg">
             <Calendar size={11} />
             {formatShortDate(task.due_date)}
           </span>
@@ -217,7 +228,7 @@ export function TaskCard({ task, status, statuses }: Props) {
             handleQuickMove(e.target.value);
           }}
           onClick={(e) => e.stopPropagation()}
-          className="ml-auto cursor-pointer rounded border border-transparent bg-transparent px-1 py-0.5 text-[10px] text-pf-700 opacity-0 transition hover:border-teal-800/30 hover:bg-pf-900 group-hover:opacity-100"
+          className="ml-auto cursor-pointer rounded border border-transparent bg-transparent px-1 py-0.5 text-[10px] text-pf-muted-fg opacity-60 transition hover:border-pf-border hover:bg-pf-900 hover:opacity-100 group-hover:opacity-100"
           title="Quick move"
           style={{ color: status.color }}
         >

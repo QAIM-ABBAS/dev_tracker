@@ -11,6 +11,10 @@ export default {
           700: "var(--pf-700)",
           400: "var(--pf-400)",
           100: "var(--pf-100)",
+          surface: "var(--pf-surface)",
+          "muted-fg": "var(--pf-muted-fg)",
+          border: "var(--pf-border)",
+          destructive: "var(--pf-destructive)",
         },
         ink: {
           50: "#f8fafc",
@@ -73,9 +77,9 @@ export default {
         },
       },
       animation: {
-        "fade-in": "fade-in 0.18s ease-out",
-        "scale-in": "scale-in 0.14s ease-out",
-        "snap-in": "snap-in 0.3s ease-out",
+        "fade-in": "motion-safe:fade-in 0.18s ease-out",
+        "scale-in": "motion-safe:scale-in 0.14s ease-out",
+        "snap-in": "motion-safe:snap-in 0.3s ease-out",
       },
     },
   },
